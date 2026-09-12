@@ -1,0 +1,2311 @@
+{
+  "schemaVersion": 1,
+  "dataset": "male-cns:v1.0",
+  "circuit": "LoVP92→VES200m→DNg13",
+  "generatedAt": "2026-09-12T01:36:24+00:00",
+  "sourceFiles": [
+    {
+      "name": "body-annotations-male-cns-v1.0-minconf-0.5.feather",
+      "url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+      "bytes": 14483314,
+      "sha256": "2177e246113e4cfbf1e7772ec37c6da1955ff22e8063d0b1f833101f99a9a3b2"
+    },
+    {
+      "name": "body-neurotransmitters-male-cns-v1.0.feather",
+      "url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather",
+      "bytes": 43282834,
+      "sha256": "95c9289220663abeb3409f3ad9e5a7f8a53f8093f5139d15502cd08da8879621"
+    },
+    {
+      "name": "connectome-weights-male-cns-v1.0-minconf-0.5.feather",
+      "url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather",
+      "bytes": 1051241946,
+      "sha256": "e35da783d1c686b2b58b3b87cd6a403ae43bfcfba8bff28e08ef752c1a56afc1"
+    }
+  ],
+  "provenance": {
+    "neuronIdentity": "observed",
+    "synapseWeight": "observed",
+    "neurotransmitter": "predicted",
+    "dynamics": "literature-and-assumed"
+  },
+  "neuronCount": 27,
+  "edgeCount": 322,
+  "aggregateEdges": [
+    {
+      "preType": "DNg13",
+      "postType": "VES200m",
+      "edgeCount": 1,
+      "totalSynapses": 1
+    },
+    {
+      "preType": "LoVP92",
+      "postType": "DNg13",
+      "edgeCount": 13,
+      "totalSynapses": 54
+    },
+    {
+      "preType": "LoVP92",
+      "postType": "LoVP92",
+      "edgeCount": 93,
+      "totalSynapses": 273
+    },
+    {
+      "preType": "LoVP92",
+      "postType": "VES200m",
+      "edgeCount": 113,
+      "totalSynapses": 687
+    },
+    {
+      "preType": "VES200m",
+      "postType": "DNg13",
+      "edgeCount": 13,
+      "totalSynapses": 362
+    },
+    {
+      "preType": "VES200m",
+      "postType": "LoVP92",
+      "edgeCount": 39,
+      "totalSynapses": 91
+    },
+    {
+      "preType": "VES200m",
+      "postType": "VES200m",
+      "edgeCount": 50,
+      "totalSynapses": 89
+    }
+  ],
+  "neurons": [
+    {
+      "bodyId": 11074,
+      "type": "DNg13",
+      "instance": "DNg13_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9564808899888145,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 512006,
+      "type": "DNg13",
+      "instance": "DNg13_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.950240738278002,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 12833,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9466381049574937,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 16799,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9410875380289305,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 17786,
+      "type": "LoVP92",
+      "instance": "LoVP92_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.8919046260132457,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 17985,
+      "type": "LoVP92",
+      "instance": "LoVP92_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.8968161381008934,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 18635,
+      "type": "LoVP92",
+      "instance": "LoVP92_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9372580612667715,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 19577,
+      "type": "LoVP92",
+      "instance": "LoVP92_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9111855890792352,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 19645,
+      "type": "LoVP92",
+      "instance": "LoVP92_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.7045041485585267,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 20529,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9529546587982757,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 25574,
+      "type": "LoVP92",
+      "instance": "LoVP92_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9370290993039426,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 76145,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.880064502216926,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 511775,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9510536020767831,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 529724,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9476769025961838,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 559817,
+      "type": "LoVP92",
+      "instance": "LoVP92_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "acetylcholine",
+      "neurotransmitterConfidence": 0.9573345070444542,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 12002,
+      "type": "VES200m",
+      "instance": "VES200m_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7616665390002482,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 16531,
+      "type": "VES200m",
+      "instance": "VES200m_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7783251522282667,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 19502,
+      "type": "VES200m",
+      "instance": "VES200m_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7466078982855393,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 20938,
+      "type": "VES200m",
+      "instance": "VES200m_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7311048157957571,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 24731,
+      "type": "VES200m",
+      "instance": "VES200m_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7395495148259084,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 515561,
+      "type": "VES200m",
+      "instance": "VES200m_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7399759204964994,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 516652,
+      "type": "VES200m",
+      "instance": "VES200m_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7595947147729288,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 520197,
+      "type": "VES200m",
+      "instance": "VES200m_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7487502577802008,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 521972,
+      "type": "VES200m",
+      "instance": "VES200m_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7133902729572229,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 522436,
+      "type": "VES200m",
+      "instance": "VES200m_L",
+      "side": "L",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7521288859736792,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 522824,
+      "type": "VES200m",
+      "instance": "VES200m_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7387339074769831,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    },
+    {
+      "bodyId": 524992,
+      "type": "VES200m",
+      "instance": "VES200m_R",
+      "side": "R",
+      "status": "Traced",
+      "neurotransmitter": "glutamate",
+      "neurotransmitterConfidence": 0.7532423546357565,
+      "identityProvenance": "observed",
+      "neurotransmitterProvenance": "predicted"
+    }
+  ],
+  "edges": [
+    {
+      "bodyPre": 11074,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 16531,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 17786,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 19577,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 24731,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 25574,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 511775,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 512006,
+      "weight": 53,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 521972,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 522824,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 524992,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 529724,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12002,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 12002,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 16799,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 17985,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 18635,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 19502,
+      "weight": 10,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 19577,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 19645,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 20529,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 20938,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 24731,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 25574,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 76145,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 515561,
+      "weight": 12,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 516652,
+      "weight": 9,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 520197,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 522436,
+      "weight": 7,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 522824,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 524992,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 529724,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 12833,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16531,
+      "bodyPost": 17985,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16531,
+      "bodyPost": 511775,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16531,
+      "bodyPost": 512006,
+      "weight": 29,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16531,
+      "bodyPost": 520197,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16531,
+      "bodyPost": 521972,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16531,
+      "bodyPost": 524992,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 12002,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 12833,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 16531,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 17985,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 18635,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 19502,
+      "weight": 26,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 19577,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 20938,
+      "weight": 12,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 24731,
+      "weight": 9,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 25574,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 76145,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 515561,
+      "weight": 22,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 516652,
+      "weight": 27,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 521972,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 522436,
+      "weight": 11,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 522824,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 524992,
+      "weight": 7,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 529724,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 16799,
+      "bodyPost": 559817,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 12002,
+      "weight": 11,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 12833,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 16531,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 16799,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 17985,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 18635,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 19502,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 19577,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 20529,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 24731,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 76145,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 515561,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 516652,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 521972,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 522436,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 522824,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17786,
+      "bodyPost": 524992,
+      "weight": 11,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 11074,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 12833,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 16531,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 17786,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 18635,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 19577,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 20529,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 511775,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 512006,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 520197,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 521972,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 522824,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 17985,
+      "bodyPost": 524992,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 12002,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 12833,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 16799,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 17985,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 19577,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 19645,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 20529,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 24731,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 25574,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 511775,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 512006,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 516652,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 520197,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 522436,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 522824,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 529724,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 18635,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 11074,
+      "weight": 21,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 12833,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 16799,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 19577,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 24731,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 25574,
+      "weight": 19,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 516652,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 522436,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 529724,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19502,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 11074,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 12833,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 17786,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 17985,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 18635,
+      "weight": 8,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 20529,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 24731,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 511775,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 512006,
+      "weight": 9,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 516652,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 520197,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 521972,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 522436,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 522824,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 524992,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 529724,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19577,
+      "bodyPost": 559817,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 12002,
+      "weight": 28,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 12833,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 16531,
+      "weight": 11,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 17786,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 18635,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 19502,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 19577,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 20529,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 20938,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 24731,
+      "weight": 9,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 76145,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 515561,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 516652,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 520197,
+      "weight": 8,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 521972,
+      "weight": 22,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 522436,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 522824,
+      "weight": 18,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 19645,
+      "bodyPost": 524992,
+      "weight": 21,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 11074,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 12833,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 16799,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 17786,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 18635,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 19645,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 25574,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 512006,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 522824,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 529724,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20529,
+      "bodyPost": 559817,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20938,
+      "bodyPost": 11074,
+      "weight": 12,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20938,
+      "bodyPost": 19502,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20938,
+      "bodyPost": 24731,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20938,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20938,
+      "bodyPost": 516652,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 20938,
+      "bodyPost": 522436,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 11074,
+      "weight": 18,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 16531,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 17786,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 20938,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 522436,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 24731,
+      "bodyPost": 559817,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 11074,
+      "weight": 7,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 12002,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 12833,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 16531,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 18635,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 19502,
+      "weight": 11,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 19577,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 20529,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 20938,
+      "weight": 8,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 24731,
+      "weight": 9,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 511775,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 515561,
+      "weight": 12,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 516652,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 520197,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 521972,
+      "weight": 11,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 522436,
+      "weight": 13,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 522824,
+      "weight": 7,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 524992,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 25574,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 12002,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 12833,
+      "weight": 18,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 16799,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 17786,
+      "weight": 19,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 17985,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 18635,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 19502,
+      "weight": 8,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 19645,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 20529,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 24731,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 25574,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 515561,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 516652,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 522436,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 522824,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 524992,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 76145,
+      "bodyPost": 559817,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 12002,
+      "weight": 23,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 16531,
+      "weight": 18,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 25574,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 512006,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 520197,
+      "weight": 9,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 521972,
+      "weight": 20,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 522824,
+      "weight": 28,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 524992,
+      "weight": 19,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 511775,
+      "bodyPost": 559817,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 11074,
+      "weight": 54,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 12833,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 18635,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 19502,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 20529,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 24731,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 516652,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 522436,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 522824,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 515561,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 11074,
+      "weight": 36,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 12833,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 16799,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 18635,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 19502,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 19577,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 20938,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 24731,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 25574,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 512006,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 516652,
+      "bodyPost": 529724,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 12002,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 16531,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 19577,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 25574,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 511775,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 512006,
+      "weight": 16,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 521972,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 522824,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 524992,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 520197,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 16799,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 19577,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 25574,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 511775,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 512006,
+      "weight": 39,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 520197,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 521972,
+      "bodyPost": 522824,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 11074,
+      "weight": 26,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 12833,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 19502,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 20938,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 24731,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522436,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522824,
+      "bodyPost": 12002,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522824,
+      "bodyPost": 512006,
+      "weight": 28,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522824,
+      "bodyPost": 515561,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522824,
+      "bodyPost": 521972,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 522824,
+      "bodyPost": 524992,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 12002,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 12833,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 16531,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 19577,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 20529,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 512006,
+      "weight": 29,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 520197,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 521972,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 524992,
+      "bodyPost": 522824,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 11074,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 12002,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 17786,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 18635,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 19502,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 19577,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 20529,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 24731,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 512006,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 515561,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 516652,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 522436,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 522824,
+      "weight": 1,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 524992,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 529724,
+      "bodyPost": 559817,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 11074,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 12002,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 12833,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 16531,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 17985,
+      "weight": 5,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 18635,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 19577,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 20529,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 20938,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 24731,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 25574,
+      "weight": 3,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 511775,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 512006,
+      "weight": 6,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 515561,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 520197,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 521972,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 522436,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 522824,
+      "weight": 4,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 524992,
+      "weight": 2,
+      "provenance": "observed"
+    },
+    {
+      "bodyPre": 559817,
+      "bodyPost": 529724,
+      "weight": 3,
+      "provenance": "observed"
+    }
+  ]
+}

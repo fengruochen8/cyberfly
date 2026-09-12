@@ -1,0 +1,115 @@
+name: CyberFly
+
+options:
+  bundleIdPrefix: com.dadudu
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: BH6R2JXYJ7
+    CURRENT_PROJECT_VERSION: 8
+    MARKETING_VERSION: 0.4.4
+
+targets:
+  CyberFlyCore:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/CyberFlyCore
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.dadudu.CyberFlyCore
+
+  CyberFlySimulation:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/CyberFlySimulation
+    dependencies:
+      - target: CyberFlyCore
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.dadudu.CyberFlySimulation
+
+  CyberFlyWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - WidgetExtension
+    dependencies:
+      - target: CyberFlyCore
+    info:
+      path: Support/CyberFlyWidget-Info.plist
+      properties:
+        CFBundleDisplayName: 数字果蝇状态
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Support/CyberFlyWidget.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dadudu.CyberFly.Widget
+        SKIP_INSTALL: YES
+
+  CyberFly:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/CyberFlyApp
+    dependencies:
+      - target: CyberFlyCore
+      - target: CyberFlySimulation
+      - target: CyberFlyWidget
+        embed: true
+    info:
+      path: Support/CyberFly-Info.plist
+      properties:
+        CFBundleDisplayName: 数字果蝇
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleURLTypes:
+          - CFBundleURLName: com.dadudu.cyberfly
+            CFBundleURLSchemes:
+              - cyberfly
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: "14.0"
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dadudu.CyberFly
+        PRODUCT_NAME: CyberFly
+        ENABLE_HARDENED_RUNTIME: YES
+
+  CyberFlyCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/CyberFlyCoreTests
+    dependencies:
+      - target: CyberFlyCore
+      - target: CyberFlySimulation
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.dadudu.CyberFlyTests
+
+schemes:
+  CyberFly:
+    build:
+      targets:
+        CyberFly: all
+        CyberFlyWidget: all
+        CyberFlyCoreTests: [test]
+    test:
+      targets:
+        - CyberFlyCoreTests

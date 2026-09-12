@@ -1,0 +1,10 @@
+.build/
+DerivedData*/
+.swiftpm/
+.venv-data/
+*.xcuserstate
+xcuserdata/
+Data/raw/
+Data/cache/
+*.app.disabled/
+.DS_Store
