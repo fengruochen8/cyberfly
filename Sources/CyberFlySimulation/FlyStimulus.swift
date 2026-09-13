@@ -10,6 +10,12 @@ public struct FlyStimulus: Equatable, Sendable {
     public var touch: Double
     public var novelty: Double
     public var contamination: Double
+    public var sensorReliability: Double
+    public var otherAgentID: String?
+    public var otherAgentPresence: Double
+    public var otherAgentMotion: Double
+    public var otherAgentContingency: Double
+    public var otherAgentThreat: Double
 
     public init(
         foodOdor: Double = 0,
@@ -22,7 +28,13 @@ public struct FlyStimulus: Equatable, Sendable {
         visualMotionBearingRadians: Double? = nil,
         touch: Double = 0,
         novelty: Double = 0,
-        contamination: Double = 0
+        contamination: Double = 0,
+        sensorReliability: Double = 1,
+        otherAgentID: String? = nil,
+        otherAgentPresence: Double = 0,
+        otherAgentMotion: Double = 0,
+        otherAgentContingency: Double = 0,
+        otherAgentThreat: Double = 0
     ) {
         self.foodOdor = Self.clamp(foodOdor)
         self.foodContact = Self.clamp(foodContact)
@@ -35,6 +47,12 @@ public struct FlyStimulus: Equatable, Sendable {
         self.touch = Self.clamp(touch)
         self.novelty = Self.clamp(novelty)
         self.contamination = Self.clamp(contamination)
+        self.sensorReliability = Self.clamp(sensorReliability)
+        self.otherAgentID = otherAgentID
+        self.otherAgentPresence = Self.clamp(otherAgentPresence)
+        self.otherAgentMotion = Self.clamp(otherAgentMotion)
+        self.otherAgentContingency = Self.clamp(otherAgentContingency)
+        self.otherAgentThreat = Self.clamp(otherAgentThreat)
     }
 
     public static let quiet = FlyStimulus()

@@ -493,8 +493,55 @@ private struct FlyAvatarView: View {
     }
 }
 
+@MainActor
+private final class StatusDashboardModel: ObservableObject {
+    @Published private(set) var snapshot: FlyStateSnapshot
+    @Published private(set) var food: FoodResource?
+    @Published private(set) var isPaused: Bool
+
+    private let source: RuntimeController
+    private var subscriptions: Set<AnyCancellable> = []
+
+    init(runtime: RuntimeController) {
+        source = runtime
+        snapshot = runtime.snapshot
+        food = runtime.food
+        isPaused = runtime.isPaused
+
+        runtime.$snapshot
+            .throttle(for: .milliseconds(250), scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] in self?.snapshot = $0 }
+            .store(in: &subscriptions)
+        runtime.$food
+            .throttle(for: .milliseconds(250), scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] in self?.food = $0 }
+            .store(in: &subscriptions)
+        runtime.$isPaused
+            .removeDuplicates()
+            .sink { [weak self] in self?.isPaused = $0 }
+            .store(in: &subscriptions)
+    }
+
+    func placeFood(odorCue: FlyOdorCue) { source.placeFood(odorCue: odorCue) }
+    func removeFood() { source.removeFood() }
+    func touchFly() { source.touchFly() }
+    func addDust() { source.addDust() }
+    func displaceFlyExternally() { source.displaceFlyExternally() }
+    func maskSenses() { source.maskSenses() }
+    func reverseSteering() { source.reverseSteering() }
+    func applyHiddenWind() { source.applyHiddenWind() }
+    func triggerGoalConflict() { source.triggerGoalConflict() }
+    func introduceOtherAgent() { source.introduceOtherAgent(contingent: true) }
+    func togglePause() { source.togglePause() }
+}
+
+@MainActor
 struct StatusDashboardView: View {
-    @ObservedObject var runtime: RuntimeController
+    @StateObject private var runtime: StatusDashboardModel
+
+    init(runtime: RuntimeController) {
+        _runtime = StateObject(wrappedValue: StatusDashboardModel(runtime: runtime))
+    }
 
     var body: some View {
         ScrollView {
@@ -520,6 +567,59 @@ struct StatusDashboardView: View {
             Text(runtime.snapshot.reason)
                 .font(.body)
 
+            if let nodeCount = runtime.snapshot.wholeCNSNodeCount,
+               let edgeCount = runtime.snapshot.wholeCNSEdgeCount {
+                VStack(alignment: .leading, spacing: 7) {
+                    Label("全 CNS 运行时", systemImage: "point.3.connected.trianglepath.dotted")
+                        .font(.caption.weight(.semibold))
+                    HStack {
+                        Text("\(nodeCount.formatted()) 个神经元")
+                        Spacer()
+                        Text("\(edgeCount.formatted()) 条观测连接")
+                    }
+                    HStack {
+                        Text("活跃 \((runtime.snapshot.wholeCNSActiveNeuronCount ?? 0).formatted())")
+                        Spacer()
+                        Text("放电 \((runtime.snapshot.wholeCNSSpikeCount ?? 0).formatted())")
+                        Spacer()
+                        Text("传播 \((runtime.snapshot.wholeCNSEdgeEventCount ?? 0).formatted())")
+                    }
+                    if let realTimeFactor = runtime.snapshot.wholeCNSRealTimeFactor {
+                        HStack {
+                            Text("运行速度")
+                            Spacer()
+                            Text("\(realTimeFactor.formatted(.number.precision(.fractionLength(2))))× 实时")
+                                .foregroundStyle(realTimeFactor >= 1 ? .green : .orange)
+                        }
+                    }
+                    HStack {
+                        Text("感觉 \((runtime.snapshot.wholeCNSSensoryActivity ?? 0).formatted(.percent.precision(.fractionLength(2))))")
+                        Spacer()
+                        Text("中央复合体 \((runtime.snapshot.wholeCNSCentralComplexActivity ?? 0).formatted(.percent.precision(.fractionLength(2))))")
+                        Spacer()
+                        Text("下行 \((runtime.snapshot.wholeCNSDescendingActivity ?? 0).formatted(.percent.precision(.fractionLength(2))))")
+                    }
+                    HStack {
+                        Text("多巴胺 \((runtime.snapshot.wholeCNSDopamineLevel ?? 0).formatted(.percent.precision(.fractionLength(1))))")
+                        Spacer()
+                        Text("可塑性突触前源 \((runtime.snapshot.wholeCNSPlasticSynapseSourceCount ?? 0).formatted())")
+                    }
+                    if runtime.snapshot.wholeCNSEventBudgetSaturated == true {
+                        Label("本周期达到事件预算上限", systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                    }
+                    if let hash = runtime.snapshot.wholeCNSGraphSHA256 {
+                        Text("MaleCNS v1.0 · graph \(String(hash.prefix(12)))…")
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("神经元、连接和突触数为 observed；递质为 predicted；膜动力学、受体符号和可塑性为 literature/fitted/assumed。")
+                        .foregroundStyle(.secondary)
+                }
+                .font(.caption2)
+                .padding(10)
+                .background(.green.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
+            }
+
             if let controller = runtime.snapshot.controllerCircuit,
                let actionNeuron = runtime.snapshot.selectedActionNeuron {
                 VStack(alignment: .leading, spacing: 5) {
@@ -536,12 +636,70 @@ struct StatusDashboardView: View {
                     }
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    Text("动作与下降运动层：\(runtime.snapshot.controllerProvenance ?? "fitted/assumed")；并非 MaleCNS 直接观测。")
+                    Text("动作竞争与运动读出：\(runtime.snapshot.controllerProvenance ?? "fitted/assumed")。")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
                 .padding(10)
                 .background(.blue.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
+            }
+
+            if let selfState = runtime.snapshot.functionalSelf {
+                VStack(alignment: .leading, spacing: 6) {
+                    Label("功能性自我认知", systemImage: "person.crop.circle.badge.questionmark")
+                        .font(.caption.weight(.semibold))
+                    HStack {
+                        Text(selfState.causalAttribution.displayName)
+                            .font(.subheadline.weight(.medium))
+                        Spacer()
+                        Text("置信 \(selfState.confidence.formatted(.percent.precision(.fractionLength(0))))")
+                    }
+                    Text(selfState.explanation)
+                        .font(.caption)
+                    HStack {
+                        Text("身体 \(selfState.bodilyCoherence.formatted(.percent.precision(.fractionLength(0))))")
+                        Spacer()
+                        Text("能动性 \(selfState.agencyScore.formatted(.percent.precision(.fractionLength(0))))")
+                        Spacer()
+                        Text("误差 \(selfState.predictionError.formatted(.percent.precision(.fractionLength(0))))")
+                    }
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    Text("\(FunctionalSelfState.circuitID) · \(FunctionalSelfState.provenance)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(10)
+                .background(.purple.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
+            }
+
+            if let counterfactual = runtime.snapshot.counterfactualSelf,
+               let semantic = runtime.snapshot.semanticSelf,
+               let social = runtime.snapshot.socialSelf {
+                VStack(alignment: .leading, spacing: 7) {
+                    Label("认知进阶 v1.3–v1.5", systemImage: "point.3.connected.trianglepath.dotted")
+                        .font(.caption.weight(.semibold))
+                    HStack {
+                        Text("计划 \(counterfactual.selectedBehavior.displayName)")
+                        Spacer()
+                        Text("目标 \(semantic.activeGoal.displayName)")
+                    }
+                    .font(.subheadline.weight(.medium))
+                    HStack {
+                        Text("外因 \(counterfactual.worldHypothesisProbability.formatted(.percent.precision(.fractionLength(0))))")
+                        Spacer()
+                        Text("校准误差 \(counterfactual.calibrationError.formatted(.percent.precision(.fractionLength(0))))")
+                        Spacer()
+                        Text("他者 \(social.otherAgencyProbability.formatted(.percent.precision(.fractionLength(0))))")
+                    }
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    Text(social.otherPresent ? social.explanation : semantic.narrativeSummary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(10)
+                .background(.cyan.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
             }
 
             if let circuit = runtime.snapshot.neuralCircuit,
@@ -600,6 +758,16 @@ struct StatusDashboardView: View {
                 Spacer()
                 Button(runtime.isPaused ? "继续" : "暂停") { runtime.togglePause() }
             }
+            HStack {
+                Button("外力位移") { runtime.displaceFlyExternally() }
+                Button("遮蔽感觉") { runtime.maskSenses() }
+                Button("反转转向") { runtime.reverseSteering() }
+            }
+            HStack {
+                Button("隐藏阵风") { runtime.applyHiddenWind() }
+                Button("目标冲突") { runtime.triggerGoalConflict() }
+                Button("引入他者") { runtime.introduceOtherAgent() }
+            }
 
             if let food = runtime.food {
                 TimelineView(.periodic(from: .now, by: 1)) { timeline in
@@ -616,7 +784,7 @@ struct StatusDashboardView: View {
             }
 
             Divider()
-            Text("所有动作、速度、转向、振翅、进食和梳理门控均来自神经控制器输出。身体层只更新能量、疲劳、碰撞和位置。当前阶段：\(runtime.snapshot.modelFidelity.displayName)。")
+            Text("全 CNS 图保留每个已追踪神经元的动力学状态；工程认知层执行行动预测、反事实比较、长期目标与自己/他者推断，并反馈给动作竞争。这些是可检验功能，不代表主观意识。当前：\(runtime.snapshot.modelFidelity.displayName)。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -691,6 +859,7 @@ final class StatusMenuController: NSObject, NSWindowDelegate {
     private var snapshotSubscription: AnyCancellable?
     private var pauseSubscription: AnyCancellable?
     private var dashboardWindow: NSWindow?
+    private var neuralLabWindow: NSWindow?
 
     private let moodItem = NSMenuItem(title: "情绪：--", action: nil, keyEquivalent: "")
     private let behaviorItem = NSMenuItem(title: "动作：--", action: nil, keyEquivalent: "")
@@ -725,6 +894,7 @@ final class StatusMenuController: NSObject, NSWindowDelegate {
         }
         menu.addItem(.separator())
         menu.addItem(item("打开实时状态", action: #selector(openDashboard), key: "s"))
+        menu.addItem(item("打开神经实验室", action: #selector(openNeuralLab), key: "l"))
         menu.addItem(item("放置琥珀果香", action: #selector(placeAmberFood), key: "f"))
         menu.addItem(item("放置莓红果香", action: #selector(placeBerryFood), key: "b"))
         menu.addItem(item("轻触果蝇", action: #selector(touchFly), key: "t"))
@@ -776,10 +946,43 @@ final class StatusMenuController: NSObject, NSWindowDelegate {
         showDashboard()
     }
 
+    func showNeuralLab() {
+        if neuralLabWindow == nil {
+            let window = NSWindow(
+                contentRect: CGRect(x: 0, y: 0, width: 1_180, height: 760),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable],
+                backing: .buffered,
+                defer: false
+            )
+            window.title = "数字果蝇 · 神经实验室"
+            window.contentView = NSHostingView(rootView: NeuralLabView(runtime: runtime))
+            window.minSize = NSSize(width: 980, height: 640)
+            window.isReleasedWhenClosed = false
+            window.tabbingMode = .disallowed
+            window.setFrameAutosaveName("CyberFlyNeuralLabWindow")
+            window.delegate = self
+            neuralLabWindow = window
+            if !window.setFrameUsingName("CyberFlyNeuralLabWindow") {
+                window.center()
+            }
+        }
+        neuralLabWindow?.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+
+    @objc private func openNeuralLab() {
+        showNeuralLab()
+    }
+
     func windowWillClose(_ notification: Notification) {
-        guard notification.object as? NSWindow === dashboardWindow else { return }
-        dashboardWindow?.contentView = nil
-        dashboardWindow = nil
+        guard let window = notification.object as? NSWindow else { return }
+        if window === dashboardWindow {
+            dashboardWindow?.contentView = nil
+            dashboardWindow = nil
+        } else if window === neuralLabWindow {
+            neuralLabWindow?.contentView = nil
+            neuralLabWindow = nil
+        }
     }
 
     @objc private func placeAmberFood() { runtime.placeFood(odorCue: .amber) }

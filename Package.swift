@@ -19,7 +19,8 @@ let package = Package(
         .target(
             name: "CyberFlySimulation",
             dependencies: ["CyberFlyCore"],
-            path: "Sources/CyberFlySimulation"
+            path: "Sources/CyberFlySimulation",
+            resources: [.copy("Resources/FullCNS")]
         ),
         .executableTarget(
             name: "CyberFlyApp",
@@ -39,4 +40,3 @@ let package = Package(
     ],
     swiftLanguageModes: [.v5]
 )
-

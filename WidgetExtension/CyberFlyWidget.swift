@@ -1,4 +1,5 @@
 import CyberFlyCore
+import Foundation
 import SwiftUI
 import WidgetKit
 
@@ -14,15 +15,11 @@ struct CyberFlyStateWidget: Widget {
         StaticConfiguration(kind: FlyWidgetKind.value, provider: FlyTimelineProvider()) { entry in
             CyberFlyWidgetView(entry: entry)
                 .containerBackground(for: .widget) {
-                    LinearGradient(
-                        colors: [WidgetPalette.backgroundTop, WidgetPalette.backgroundBottom],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    WidgetBackdrop()
                 }
         }
-        .configurationDisplayName("数字果蝇状态")
-        .description("查看果蝇的神经动作、内部状态和最近形成的气味记忆。")
+        .configurationDisplayName("数字果蝇 CNS 监视器")
+        .description("以暖黑工业监视面板查看全 CNS 速度、活动和身体状态。")
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
     }
@@ -46,14 +43,22 @@ struct FlyTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (FlyWidgetEntry) -> Void) {
-        let snapshot = context.isPreview ? FlyStateSnapshot.preview() : store.load()
+        let snapshot = context.isPreview ? FlyStateSnapshot.preview() : loadedSnapshot()
         completion(entry(for: snapshot))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<FlyWidgetEntry>) -> Void) {
         let now = Date()
-        let entry = entry(for: store.load(), now: now)
-        completion(Timeline(entries: [entry], policy: .after(now.addingTimeInterval(5 * 60))))
+        completion(
+            Timeline(
+                entries: [entry(for: loadedSnapshot(), now: now)],
+                policy: .after(now.addingTimeInterval(5 * 60))
+            )
+        )
+    }
+
+    private func loadedSnapshot() -> FlyStateSnapshot? {
+        try? store.loadReadOnly()
     }
 
     private func entry(for snapshot: FlyStateSnapshot?, now: Date = Date()) -> FlyWidgetEntry {
@@ -70,198 +75,332 @@ struct CyberFlyWidgetView: View {
     let entry: FlyWidgetEntry
 
     var body: some View {
-        Group {
+        ZStack {
+            WidgetGrid()
             if entry.hasData {
                 if family == .systemSmall {
-                    compactView
+                    compactPanel
                 } else {
-                    mediumView
+                    monitorPanel
                 }
             } else {
-                unavailableView
+                waitingPanel
             }
         }
         .widgetURL(URL(string: "cyberfly://status"))
     }
 
-    private var compactView: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            header
-            HStack(alignment: .firstTextBaseline) {
-                Text(entry.snapshot.emotion.displayName)
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(statusColor)
-                Spacer()
-                Text(entry.snapshot.behavior.displayName)
-                    .font(.caption)
-                    .foregroundStyle(WidgetPalette.secondary)
-                    .lineLimit(1)
+    private var monitorPanel: some View {
+        VStack(spacing: 8) {
+            header(compact: false)
+            separator
+            HStack(spacing: 12) {
+                cnsPanel
+                Rectangle()
+                    .fill(WidgetPalette.border)
+                    .frame(width: 1)
+                metricColumn
             }
-            MetricBar(label: "饥饿", value: entry.snapshot.hunger, color: WidgetPalette.hunger)
-            MetricBar(label: "好奇", value: entry.snapshot.curiosity, color: WidgetPalette.curiosity)
-            MetricBar(label: "快乐", value: entry.snapshot.wellbeing, color: WidgetPalette.wellbeing)
-            HStack(spacing: 5) {
-                Text(compactFooterText)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-                if !entry.isStale {
-                    Text(entry.snapshot.sampledAt.formatted(date: .omitted, time: .shortened))
-                        .monospacedDigit()
-                }
+        }
+        .padding(13)
+    }
+
+    private var compactPanel: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            header(compact: true)
+            separator
+            Text("CNS.RTF")
+                .widgetLabel(size: 8, color: WidgetPalette.ink)
+            Text(WidgetFormat.realtime(entry.snapshot.wholeCNSRealTimeFactor ?? 0))
+                .font(.system(size: 27, weight: .bold, design: .monospaced))
+                .foregroundStyle(WidgetPalette.primary)
+                .monospacedDigit()
+                .widgetNumericTransition(value: entry.snapshot.wholeCNSRealTimeFactor ?? 0)
+            WidgetSegmentBar(
+                progress: min((entry.snapshot.wholeCNSRealTimeFactor ?? 0) / 4, 1),
+                segments: 10
+            )
+            HStack(spacing: 10) {
+                MiniReadout(code: "HNG", value: WidgetFormat.percent(entry.snapshot.hunger))
+                MiniReadout(code: "CUR", value: WidgetFormat.percent(entry.snapshot.curiosity))
+                MiniReadout(code: "WEL", value: WidgetFormat.percent(entry.snapshot.wellbeing))
             }
-            .font(.caption2)
-            .foregroundStyle(entry.isStale ? WidgetPalette.stale : WidgetPalette.secondary)
+            HStack(spacing: 4) {
+                Text(entry.snapshot.selectedActionNeuron ?? "ENG-ACT-IDLE")
+                    .widgetLabel(size: 6.5, color: WidgetPalette.muted)
+                    .lineLimit(1)
+                Spacer(minLength: 2)
+                Text(entry.isStale ? "HOLD" : "LIVE")
+                    .widgetLabel(size: 6.5, color: WidgetPalette.ink)
+            }
         }
         .padding(12)
     }
 
-    private var mediumView: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                header
-                Image(systemName: entry.snapshot.behavior.systemImage)
-                    .font(.system(size: 34, weight: .medium))
-                    .foregroundStyle(statusColor)
-                Text(entry.snapshot.emotion.displayName)
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(WidgetPalette.primary)
-                Text(entry.snapshot.behavior.displayName)
-                    .font(.caption)
-                    .foregroundStyle(WidgetPalette.secondary)
-                Spacer(minLength: 0)
-                freshness
-            }
-            .frame(width: 112, alignment: .leading)
-
+    private func header(compact: Bool) -> some View {
+        HStack(spacing: 7) {
             Rectangle()
-                .fill(WidgetPalette.separator)
-                .frame(width: 1)
-
-            VStack(alignment: .leading, spacing: 10) {
-                MetricBar(label: "短时愉悦", value: entry.snapshot.valence, color: WidgetPalette.valence)
-                MetricBar(label: "长期快乐", value: entry.snapshot.wellbeing, color: WidgetPalette.wellbeing)
-                MetricBar(label: "饥饿", value: entry.snapshot.hunger, color: WidgetPalette.hunger)
-                MetricBar(label: "好奇", value: entry.snapshot.curiosity, color: WidgetPalette.curiosity)
-                Text(entry.snapshot.memorySummary ?? entry.snapshot.reason)
-                    .font(.caption2)
-                    .foregroundStyle(WidgetPalette.secondary)
-                    .lineLimit(1)
-                if let actionNeuron = entry.snapshot.selectedActionNeuron {
-                    Text("\(actionNeuron) → \(entry.snapshot.behavior.displayName)")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(WidgetPalette.live)
-                        .lineLimit(1)
-                } else if let circuit = entry.snapshot.neuralCircuit {
-                    Text(circuit)
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(WidgetPalette.live)
-                        .lineLimit(1)
-                }
+                .fill(entry.isStale ? WidgetPalette.stale : WidgetPalette.primary)
+                .frame(width: 6, height: 6)
+            Text(compact ? "CF//FLY" : "CF//CNS.MTR")
+                .widgetLabel(size: compact ? 8 : 9, color: WidgetPalette.primary)
+            Text(operationalCode)
+                .widgetLabel(size: 8, color: entry.isStale ? WidgetPalette.stale : WidgetPalette.ink)
+            Spacer(minLength: 4)
+            if !compact {
+                Text("CNS")
+                    .widgetLabel(size: 8, color: WidgetPalette.ink)
+                Text(entry.isStale ? "--:--" : entry.snapshot.sampledAt.formatted(date: .omitted, time: .shortened))
+                    .widgetLabel(size: 8, color: WidgetPalette.primary)
+                    .monospacedDigit()
             }
         }
-        .padding(15)
     }
 
-    private var header: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "ant.fill")
-                .foregroundStyle(statusColor)
-            Text("数字果蝇")
-                .font(.caption.weight(.semibold))
+    private var cnsPanel: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("CNS.RTF")
+                .widgetLabel(size: 8, color: WidgetPalette.ink)
+            Text(WidgetFormat.realtime(entry.snapshot.wholeCNSRealTimeFactor ?? 0))
+                .font(.system(size: 29, weight: .bold, design: .monospaced))
                 .foregroundStyle(WidgetPalette.primary)
-            Spacer(minLength: 0)
-            Circle()
-                .fill(entry.isStale ? WidgetPalette.stale : WidgetPalette.live)
-                .frame(width: 6, height: 6)
+                .monospacedDigit()
+                .widgetNumericTransition(value: entry.snapshot.wholeCNSRealTimeFactor ?? 0)
+            WidgetSegmentBar(
+                progress: min((entry.snapshot.wholeCNSRealTimeFactor ?? 0) / 4, 1),
+                segments: 10
+            )
+            Text(
+                "ACT \(WidgetFormat.count(entry.snapshot.wholeCNSActiveNeuronCount ?? 0))  "
+                    + "SPK \(WidgetFormat.count(entry.snapshot.wholeCNSSpikeCount ?? 0))"
+            )
+            .widgetLabel(size: 7, color: WidgetPalette.muted)
+            .lineLimit(1)
+        }
+        .frame(width: 112, alignment: .leading)
+    }
+
+    private var metricColumn: some View {
+        VStack(spacing: 7) {
+            WidgetMetricRow(code: "HNG", value: entry.snapshot.hunger)
+            WidgetMetricRow(code: "CUR", value: entry.snapshot.curiosity)
+            HStack(spacing: 10) {
+                WidgetReadout(code: "WEL", value: entry.snapshot.wellbeing)
+                WidgetReadout(code: "VAL", value: entry.snapshot.valence)
+            }
         }
     }
 
-    private var freshness: some View {
-        Text(entry.isStale ? "状态可能已过期" : entry.snapshot.sampledAt.formatted(date: .omitted, time: .shortened))
-            .font(.caption2)
-            .foregroundStyle(entry.isStale ? WidgetPalette.stale : WidgetPalette.secondary)
-    }
-
-    private var compactFooterText: String {
-        if entry.isStale { return "状态可能已过期" }
-        if let memory = entry.snapshot.memorySummary,
-           entry.snapshot.memoryConfidence ?? 0 > 0.02 {
-            return memory
-        }
-        return "记忆尚未形成"
-    }
-
-    private var unavailableView: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: "ant.fill")
-                .font(.title)
-                .foregroundStyle(WidgetPalette.stale)
-            Text("等待数字果蝇")
-                .font(.headline)
+    private var waitingPanel: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 7) {
+                Rectangle().fill(WidgetPalette.stale).frame(width: 6, height: 6)
+                Text(family == .systemSmall ? "CF//FLY" : "CF//CNS.MTR")
+                    .widgetLabel(size: 9, color: WidgetPalette.primary)
+                Spacer()
+                Text("OFFLINE").widgetLabel(size: 8, color: WidgetPalette.stale)
+            }
+            separator
+            Text("NO TELEMETRY")
+                .font(.system(size: family == .systemSmall ? 21 : 23, weight: .bold, design: .monospaced))
                 .foregroundStyle(WidgetPalette.primary)
-            Text("启动宿主应用后，这里会显示它的当前状态。")
-                .font(.caption)
-                .foregroundStyle(WidgetPalette.secondary)
+            Text("START CYBERFLY HOST PROCESS")
+                .widgetLabel(size: 8, color: WidgetPalette.muted)
+            WidgetSegmentBar(progress: 0, segments: 18)
         }
-        .padding(15)
+        .padding(family == .systemSmall ? 12 : 14)
     }
 
-    private var statusColor: Color {
+    private var separator: some View {
+        Rectangle()
+            .fill(WidgetPalette.border)
+            .frame(height: 1)
+    }
+
+    private var operationalCode: String {
+        if entry.isStale { return "HOLD" }
         switch entry.snapshot.emotion {
-        case .happy, .content: WidgetPalette.wellbeing
-        case .curious: WidgetPalette.curiosity
-        case .hungry: WidgetPalette.hunger
-        case .alert: WidgetPalette.alert
-        case .distressed: WidgetPalette.distress
-        case .tired, .dormant: WidgetPalette.stale
-        case .calm: WidgetPalette.live
+        case .happy, .content, .calm:
+            return "NOMINAL"
+        case .curious, .hungry, .alert:
+            return "ACTIVE"
+        case .tired, .dormant:
+            return "REST"
+        case .distressed:
+            return "FAULT"
         }
     }
 }
 
-private struct MetricBar: View {
-    let label: String
+private struct WidgetMetricRow: View {
+    let code: String
     let value: Double
-    let color: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(label)
-                    .font(.caption2)
-                    .foregroundStyle(WidgetPalette.secondary)
-                Spacer()
-                Text(value.formatted(.percent.precision(.fractionLength(0))))
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(WidgetPalette.primary)
-                    .contentTransition(.numericText(value: value))
+        HStack(spacing: 8) {
+            Text(code)
+                .widgetLabel(size: 8, color: WidgetPalette.ink)
+                .frame(width: 28, alignment: .leading)
+            WidgetSegmentBar(progress: value, segments: 8)
+            Text(WidgetFormat.percent(value))
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .foregroundStyle(WidgetPalette.primary)
+                .monospacedDigit()
+                .frame(width: 60, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .widgetNumericTransition(value: value)
+        }
+    }
+}
+
+private struct WidgetReadout: View {
+    let code: String
+    let value: Double
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(code).widgetLabel(size: 7, color: WidgetPalette.ink)
+            Text(WidgetFormat.percent(value))
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundStyle(WidgetPalette.primary)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .widgetNumericTransition(value: value)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct MiniReadout: View {
+    let code: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(code).widgetLabel(size: 6.5, color: WidgetPalette.ink)
+            Text(value)
+                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                .foregroundStyle(WidgetPalette.primary)
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct WidgetSegmentBar: View {
+    let progress: Double
+    let segments: Int
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(0..<segments, id: \.self) { index in
+                Rectangle()
+                    .fill(index < activeSegments ? WidgetPalette.primary : WidgetPalette.track)
+                    .frame(maxWidth: .infinity)
             }
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(WidgetPalette.track)
-                    Capsule()
-                        .fill(color)
-                        .frame(width: max(2, proxy.size.width * min(max(value, 0), 1)))
-                }
+        }
+        .frame(height: 6)
+        .animation(.easeOut(duration: 0.4), value: progress)
+    }
+
+    private var activeSegments: Int {
+        Int((min(max(progress, 0), 1) * Double(segments)).rounded(.up))
+    }
+}
+
+private struct WidgetGrid: View {
+    var body: some View {
+        Canvas { context, size in
+            for x in stride(from: 0.0, through: size.width, by: 22.0) {
+                var path = Path()
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+                context.stroke(path, with: .color(WidgetPalette.grid), lineWidth: 0.55)
             }
-            .frame(height: 5)
+            for y in stride(from: 0.0, through: size.height, by: 22.0) {
+                var path = Path()
+                path.move(to: CGPoint(x: 0, y: y))
+                path.addLine(to: CGPoint(x: size.width, y: y))
+                context.stroke(path, with: .color(WidgetPalette.grid), lineWidth: 0.55)
+            }
+        }
+    }
+}
+
+private struct WidgetBackdrop: View {
+    var body: some View {
+        ZStack {
+            WidgetPalette.background
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0.16),
+                    WidgetPalette.bronze.opacity(0.28),
+                    WidgetPalette.olive.opacity(0.18),
+                    WidgetPalette.rust.opacity(0.22)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            RadialGradient(
+                colors: [WidgetPalette.olive.opacity(0.18), .clear],
+                center: UnitPoint(x: 0.62, y: 0.55),
+                startRadius: 0,
+                endRadius: 90
+            )
+            RadialGradient(
+                colors: [WidgetPalette.rust.opacity(0.16), .clear],
+                center: UnitPoint(x: 0.88, y: 0.82),
+                startRadius: 0,
+                endRadius: 110
+            )
         }
     }
 }
 
 private enum WidgetPalette {
-    static let backgroundTop = Color(red: 0.12, green: 0.09, blue: 0.055)
-    static let backgroundBottom = Color(red: 0.055, green: 0.075, blue: 0.065)
-    static let primary = Color(red: 0.95, green: 0.92, blue: 0.82)
-    static let secondary = Color(red: 0.69, green: 0.68, blue: 0.59)
-    static let separator = Color(red: 0.31, green: 0.31, blue: 0.25)
-    static let track = Color(red: 0.22, green: 0.22, blue: 0.17)
-    static let wellbeing = Color(red: 0.43, green: 0.82, blue: 0.42)
-    static let valence = Color(red: 0.83, green: 0.72, blue: 0.30)
-    static let hunger = Color(red: 0.96, green: 0.51, blue: 0.20)
-    static let curiosity = Color(red: 0.31, green: 0.67, blue: 0.95)
-    static let alert = Color(red: 0.70, green: 0.48, blue: 0.94)
-    static let distress = Color(red: 0.94, green: 0.27, blue: 0.24)
-    static let live = Color(red: 0.33, green: 0.84, blue: 0.62)
-    static let stale = Color(red: 0.76, green: 0.53, blue: 0.27)
+    static let background = Color(red: 0.075, green: 0.068, blue: 0.064)
+    static let bronze = Color(red: 0.36, green: 0.20, blue: 0.08)
+    static let olive = Color(red: 0.24, green: 0.28, blue: 0.14)
+    static let rust = Color(red: 0.38, green: 0.13, blue: 0.08)
+    static let primary = Color(red: 0.82, green: 0.80, blue: 0.77)
+    static let ink = Color(red: 0.76, green: 0.74, blue: 0.71)
+    static let muted = Color(red: 0.58, green: 0.56, blue: 0.53)
+    static let stale = Color(red: 0.66, green: 0.53, blue: 0.40)
+    static let border = Color(red: 0.76, green: 0.74, blue: 0.71).opacity(0.72)
+    static let grid = Color(red: 0.68, green: 0.65, blue: 0.59).opacity(0.24)
+    static let track = Color(red: 0.33, green: 0.32, blue: 0.30).opacity(0.76)
+}
+
+private enum WidgetFormat {
+    static func percent(_ value: Double) -> String {
+        String(format: "%05.1f%%", min(max(value, 0), 1) * 100)
+    }
+
+    static func realtime(_ value: Double) -> String {
+        String(format: "%05.2fX", max(value, 0))
+    }
+
+    static func count(_ value: Int) -> String {
+        switch value {
+        case 10_000...:
+            return String(format: "%.1fK", Double(value) / 1_000)
+        default:
+            return String(format: "%04d", max(value, 0))
+        }
+    }
+}
+
+private extension View {
+    func widgetLabel(size: CGFloat, color: Color) -> some View {
+        font(.system(size: size, weight: .bold, design: .monospaced))
+            .foregroundStyle(color)
+            .tracking(0.5)
+    }
+
+    func widgetNumericTransition(value: Double) -> some View {
+        contentTransition(.numericText(value: value))
+            .animation(.easeOut(duration: 0.4), value: value)
+    }
 }

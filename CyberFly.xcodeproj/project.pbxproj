@@ -24,6 +24,15 @@
 		C0DEC0DE0000000000000003 /* FoodResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000003 /* FoodResource.swift */; };
 		C0DEC0DE0000000000000004 /* MaleCNSLearningCircuit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000004 /* MaleCNSLearningCircuit.swift */; };
 		C0DEC0DE0000000000000005 /* MaleCNSLearningCircuitData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000005 /* MaleCNSLearningCircuitData.swift */; };
+		C0DEC0DE0000000000000006 /* FullCNSGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000006 /* FullCNSGraph.swift */; };
+		C0DEC0DE0000000000000007 /* FullCNSRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000007 /* FullCNSRuntime.swift */; };
+		C0DEC0DE0000000000000008 /* FullCNSStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000008 /* FullCNSStateStore.swift */; };
+		C0DEC0DE0000000000000009 /* FullCNS in Resources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000009 /* FullCNS */; };
+		C0DEC0DE0000000000000010 /* FullCNSExperiment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000010 /* FullCNSExperiment.swift */; };
+		C0DEC0DE0000000000000011 /* NeuralLab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000011 /* NeuralLab.swift */; };
+		C0DEC0DE0000000000000012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000012 /* Assets.xcassets */; };
+		C0DEC0DE0000000000000014 /* FunctionalSelfState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000014 /* FunctionalSelfState.swift */; };
+		C0DEC0DE0000000000000015 /* FunctionalSelfModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DE1000000000000015 /* FunctionalSelfModel.swift */; };
 		B781E8ADDA00B66C4BA239AC /* CyberFlyCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6869618B2897346A3AB60D26 /* CyberFlyCore.framework */; };
 		B810DAECA9414C0ACB8F670A /* CyberFlyCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6869618B2897346A3AB60D26 /* CyberFlyCore.framework */; };
 		BC4EEFDEFE602D0791FA7BA5 /* CyberFlySimulation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 815AC67619C652CA04DF39C6 /* CyberFlySimulation.framework */; };
@@ -153,6 +162,16 @@
 		C0DEC0DE1000000000000003 /* FoodResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodResource.swift; sourceTree = "<group>"; };
 		C0DEC0DE1000000000000004 /* MaleCNSLearningCircuit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaleCNSLearningCircuit.swift; sourceTree = "<group>"; };
 		C0DEC0DE1000000000000005 /* MaleCNSLearningCircuitData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaleCNSLearningCircuitData.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000006 /* FullCNSGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullCNSGraph.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000007 /* FullCNSRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullCNSRuntime.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000008 /* FullCNSStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullCNSStateStore.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000009 /* FullCNS */ = {isa = PBXFileReference; lastKnownFileType = folder; path = FullCNS; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000010 /* FullCNSExperiment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullCNSExperiment.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000011 /* NeuralLab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeuralLab.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000013 /* CyberFlyIconMaster.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CyberFlyIconMaster.png; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000014 /* FunctionalSelfState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalSelfState.swift; sourceTree = "<group>"; };
+		C0DEC0DE1000000000000015 /* FunctionalSelfModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalSelfModel.swift; sourceTree = "<group>"; };
 		EC2F98B709D3A601634EAB32 /* StatusViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -217,6 +236,7 @@
 			children = (
 				B2F6D1A8365E80FBDD791E39 /* FlyStateSnapshot.swift */,
 				40E4A80D3D3D232D424325D5 /* FlySnapshotStore.swift */,
+				C0DEC0DE1000000000000014 /* FunctionalSelfState.swift */,
 			);
 			path = CyberFlyCore;
 			sourceTree = "<group>";
@@ -226,13 +246,19 @@
 			children = (
 				63EDDE93A113586819E4EBEC /* DeterministicRandom.swift */,
 				A14C0DE10000000000000001 /* EmbodiedNeuralController.swift */,
+				C0DEC0DE1000000000000015 /* FunctionalSelfModel.swift */,
 				C0DEC0DE1000000000000003 /* FoodResource.swift */,
 				50A973F30302E555AF586983 /* FlyStimulus.swift */,
 				20F0A2B3C4D5E6F708192A3B /* FlySimulation.swift */,
+				C0DEC0DE1000000000000006 /* FullCNSGraph.swift */,
+				C0DEC0DE1000000000000007 /* FullCNSRuntime.swift */,
+				C0DEC0DE1000000000000008 /* FullCNSStateStore.swift */,
+				C0DEC0DE1000000000000010 /* FullCNSExperiment.swift */,
 				C0DEC0DE1000000000000004 /* MaleCNSLearningCircuit.swift */,
 				C0DEC0DE1000000000000001 /* MaleCNSVisualCircuit.swift */,
 				2C74BFE495873B7B085E09F8 /* SimulationConfiguration.swift */,
 				C0DEC0DE2000000000000001 /* Generated */,
+				C0DEC0DE2000000000000002 /* Resources */,
 			);
 			path = CyberFlySimulation;
 			sourceTree = "<group>";
@@ -244,6 +270,14 @@
 				C0DEC0DE1000000000000002 /* MaleCNSVisualCircuitData.swift */,
 			);
 			path = Generated;
+			sourceTree = "<group>";
+		};
+		C0DEC0DE2000000000000002 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C0DEC0DE1000000000000009 /* FullCNS */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		818C0D10E47D92C62E20625D /* Products */ = {
@@ -281,15 +315,26 @@
 				884BF1B0A0C4616E78AFE7B8 /* CyberFlyApp.swift */,
 				A6B9D0742ADEBDF078DA2636 /* FlyPanelController.swift */,
 				B0F561F782BFC07173028A96 /* RuntimeController.swift */,
+				C0DEC0DE1000000000000011 /* NeuralLab.swift */,
 				2A4004E11BC92A04FF18BBFF /* WidgetRefreshPolicy.swift */,
 			);
 			path = CyberFlyApp;
+			sourceTree = "<group>";
+		};
+		C0DEC0DE2000000000000003 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C0DEC0DE1000000000000012 /* Assets.xcassets */,
+				C0DEC0DE1000000000000013 /* CyberFlyIconMaster.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		F85EB746FCE29E8A39E0A655 = {
 			isa = PBXGroup;
 			children = (
 				72D73A71C97220DCB7DE9F82 /* Sources */,
+				C0DEC0DE2000000000000003 /* Resources */,
 				96627DE341B3B8EBDBF8ACCC /* Tests */,
 				9EC4F89630B127F137C469E4 /* WidgetExtension */,
 				818C0D10E47D92C62E20625D /* Products */,
@@ -302,9 +347,10 @@
 		6F1DEAB9D27F56EB63314E5F /* CyberFly */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 65303E6BA10AE19781382F41 /* Build configuration list for PBXNativeTarget "CyberFly" */;
-			buildPhases = (
-				A5DBB1A39B89EB6CBFE9A5DA /* Sources */,
-				A28A448ECEA3DD6BCDF7BED2 /* Frameworks */,
+				buildPhases = (
+					A5DBB1A39B89EB6CBFE9A5DA /* Sources */,
+					C0DEC0DE3000000000000002 /* Resources */,
+					A28A448ECEA3DD6BCDF7BED2 /* Frameworks */,
 				E41A10234B195E2F238FE049 /* Embed Foundation Extensions */,
 				E195C8C535959963C133BBB5 /* Embed Frameworks */,
 			);
@@ -361,9 +407,10 @@
 		EE53A818CDBF895D2132CBB4 /* CyberFlySimulation */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5408988D1784E0D66DE22206 /* Build configuration list for PBXNativeTarget "CyberFlySimulation" */;
-			buildPhases = (
-				97F30CF79B0EDD3C3B573B3D /* Sources */,
-				D2419536570C6E37FE41D931 /* Frameworks */,
+				buildPhases = (
+					97F30CF79B0EDD3C3B573B3D /* Sources */,
+					C0DEC0DE3000000000000001 /* Resources */,
+					D2419536570C6E37FE41D931 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -452,6 +499,25 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		C0DEC0DE3000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0DEC0DE0000000000000012 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0DEC0DE3000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0DEC0DE0000000000000009 /* FullCNS in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		5067874BEA0CAC4FD131B272 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -459,6 +525,7 @@
 			files = (
 				070DB371246CCAA04991F495 /* FlyStateSnapshot.swift in Sources */,
 				16ADF9993808793C63B7372E /* FlySnapshotStore.swift in Sources */,
+				C0DEC0DE0000000000000014 /* FunctionalSelfState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,10 +543,15 @@
 			files = (
 				A0D664FFC79011550B25F7E4 /* DeterministicRandom.swift in Sources */,
 				A14C0DE00000000000000001 /* EmbodiedNeuralController.swift in Sources */,
+				C0DEC0DE0000000000000015 /* FunctionalSelfModel.swift in Sources */,
 				C0DEC0DE0000000000000003 /* FoodResource.swift in Sources */,
 				D0A7A475FB7B806D17BE1C4D /* FlyStimulus.swift in Sources */,
 				10F0A2B3C4D5E6F708192A3B /* FlySimulation.swift in Sources */,
-				C0DEC0DE0000000000000004 /* MaleCNSLearningCircuit.swift in Sources */,
+				C0DEC0DE0000000000000006 /* FullCNSGraph.swift in Sources */,
+				C0DEC0DE0000000000000007 /* FullCNSRuntime.swift in Sources */,
+					C0DEC0DE0000000000000008 /* FullCNSStateStore.swift in Sources */,
+					C0DEC0DE0000000000000010 /* FullCNSExperiment.swift in Sources */,
+					C0DEC0DE0000000000000004 /* MaleCNSLearningCircuit.swift in Sources */,
 				C0DEC0DE0000000000000001 /* MaleCNSVisualCircuit.swift in Sources */,
 				C0DEC0DE0000000000000005 /* MaleCNSLearningCircuitData.swift in Sources */,
 				C0DEC0DE0000000000000002 /* MaleCNSVisualCircuitData.swift in Sources */,
@@ -494,8 +566,9 @@
 				D4A2AF2449970CC5F584B696 /* StatusViews.swift in Sources */,
 				FC6AA8ED8CDD6771F56DB601 /* CyberFlyApp.swift in Sources */,
 				D747DD3362B824AB3C552733 /* FlyPanelController.swift in Sources */,
-				FE3B65EFDACDB13BDE6AF10D /* RuntimeController.swift in Sources */,
-				2D8EBF2C5155AFA2D0622947 /* WidgetRefreshPolicy.swift in Sources */,
+					FE3B65EFDACDB13BDE6AF10D /* RuntimeController.swift in Sources */,
+					C0DEC0DE0000000000000011 /* NeuralLab.swift in Sources */,
+					2D8EBF2C5155AFA2D0622947 /* WidgetRefreshPolicy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,7 +676,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 19;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -643,7 +716,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 19;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -696,7 +769,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 19;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = BH6R2JXYJ7;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -710,7 +783,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.4.4;
+				MARKETING_VERSION = 1.5.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -759,7 +832,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 19;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -812,7 +885,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 19;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = BH6R2JXYJ7;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -832,7 +905,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.4.4;
+				MARKETING_VERSION = 1.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -849,7 +922,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 19;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;

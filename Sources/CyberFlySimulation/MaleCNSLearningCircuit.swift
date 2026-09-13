@@ -38,9 +38,10 @@ public struct KCPlasticityState: Codable, Equatable, Sendable {
 }
 
 public struct MaleCNSLearningMemory: Codable, Equatable, Sendable {
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
 
     public let schemaVersion: Int
+    public let individualID: UUID
     public let datasetID: String
     public let circuitID: String
     public let updatedAt: Date
@@ -49,6 +50,7 @@ public struct MaleCNSLearningMemory: Codable, Equatable, Sendable {
 
     public init(
         schemaVersion: Int = MaleCNSLearningMemory.currentSchemaVersion,
+        individualID: UUID,
         datasetID: String,
         circuitID: String,
         updatedAt: Date,
@@ -56,6 +58,7 @@ public struct MaleCNSLearningMemory: Codable, Equatable, Sendable {
         kenyonPlasticity: [KCPlasticityState]
     ) {
         self.schemaVersion = schemaVersion
+        self.individualID = individualID
         self.datasetID = datasetID
         self.circuitID = circuitID
         self.updatedAt = updatedAt
@@ -73,9 +76,56 @@ public final class MaleCNSLearningMemoryStore: @unchecked Sendable {
         self.fileManager = .default
     }
 
-    public func load() -> MaleCNSLearningMemory? {
-        guard let data = try? Data(contentsOf: fileURL) else { return nil }
-        return try? decoder.decode(MaleCNSLearningMemory.self, from: data)
+    public func load(
+        matching individualID: UUID,
+        allowingLegacyMigration: Bool = false
+    ) throws -> PersistentLoadResult<MaleCNSLearningMemory> {
+        guard fileManager.fileExists(atPath: fileURL.path) else { return .missing }
+
+        let data: Data
+        do {
+            data = try Data(contentsOf: fileURL)
+        } catch {
+            throw PersistentFileLoadError.readFailed(
+                path: fileURL.path,
+                reason: error.localizedDescription
+            )
+        }
+
+        do {
+            let memory = try decoder.decode(MaleCNSLearningMemory.self, from: data)
+            guard memory.schemaVersion == MaleCNSLearningMemory.currentSchemaVersion else {
+                throw MemoryValidationError.unsupportedSchema(memory.schemaVersion)
+            }
+            guard memory.individualID == individualID else {
+                throw MemoryValidationError.individualMismatch(
+                    expected: individualID,
+                    actual: memory.individualID
+                )
+            }
+            try validate(memory)
+            return .loaded(memory)
+        } catch {
+            if allowingLegacyMigration,
+               let legacy = try? decoder.decode(LegacyMaleCNSLearningMemory.self, from: data),
+               legacy.schemaVersion == 1 {
+                let migrated = MaleCNSLearningMemory(
+                    individualID: individualID,
+                    datasetID: legacy.datasetID,
+                    circuitID: legacy.circuitID,
+                    updatedAt: legacy.updatedAt,
+                    revision: legacy.revision,
+                    kenyonPlasticity: legacy.kenyonPlasticity
+                )
+                do {
+                    try validate(migrated)
+                    return .loaded(migrated)
+                } catch {
+                    return try quarantine(dataError: error)
+                }
+            }
+            return try quarantine(dataError: error)
+        }
     }
 
     public func save(_ memory: MaleCNSLearningMemory) throws {
@@ -105,6 +155,78 @@ public final class MaleCNSLearningMemoryStore: @unchecked Sendable {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
+    }
+
+    private func validate(_ memory: MaleCNSLearningMemory) throws {
+        guard memory.datasetID == MaleCNSLearningCircuit.datasetID,
+              memory.circuitID == MaleCNSLearningCircuit.circuitID else {
+            throw MemoryValidationError.circuitMismatch
+        }
+        let expectedIDs = Set(GeneratedMaleCNSLearningCircuitData.kenyonCells.map(\.bodyID))
+        let states = memory.kenyonPlasticity
+        let actualIDs = Set(states.map(\.bodyID))
+        guard states.count == expectedIDs.count,
+              actualIDs == expectedIDs else {
+            throw MemoryValidationError.invalidKenyonIdentities
+        }
+        guard states.allSatisfy({
+            $0.avoidanceEfficacy.isFinite
+                && $0.approachEfficacy.isFinite
+                && (0.18...1).contains($0.avoidanceEfficacy)
+                && (0.18...1).contains($0.approachEfficacy)
+        }) else {
+            throw MemoryValidationError.invalidPlasticity
+        }
+    }
+
+    private func quarantine(
+        dataError: Error
+    ) throws -> PersistentLoadResult<MaleCNSLearningMemory> {
+        let reason = dataError.localizedDescription
+        let quarantineURL = fileURL.appendingPathExtension(
+            "corrupt-\(Int(Date().timeIntervalSince1970))-\(UUID().uuidString)"
+        )
+        do {
+            try fileManager.moveItem(at: fileURL, to: quarantineURL)
+            return .quarantined(fileURL: quarantineURL, reason: reason)
+        } catch {
+            throw PersistentFileLoadError.quarantineFailed(
+                path: fileURL.path,
+                reason: "\(reason); \(error.localizedDescription)"
+            )
+        }
+    }
+}
+
+private struct LegacyMaleCNSLearningMemory: Codable {
+    let schemaVersion: Int
+    let datasetID: String
+    let circuitID: String
+    let updatedAt: Date
+    let revision: UInt64
+    let kenyonPlasticity: [KCPlasticityState]
+}
+
+private enum MemoryValidationError: Error, LocalizedError {
+    case unsupportedSchema(Int)
+    case individualMismatch(expected: UUID, actual: UUID)
+    case circuitMismatch
+    case invalidKenyonIdentities
+    case invalidPlasticity
+
+    var errorDescription: String? {
+        switch self {
+        case let .unsupportedSchema(version):
+            "不支持的记忆格式版本：\(version)"
+        case let .individualMismatch(expected, actual):
+            "记忆个体不匹配，期望 \(expected.uuidString)，实际 \(actual.uuidString)"
+        case .circuitMismatch:
+            "记忆对应的数据集或学习回路不匹配"
+        case .invalidKenyonIdentities:
+            "记忆中的 Kenyon cell 身份不完整或重复"
+        case .invalidPlasticity:
+            "记忆中的突触可塑性数值无效"
+        }
     }
 }
 
@@ -163,6 +285,7 @@ public struct MaleCNSLearningCircuit: Sendable {
     private static let punishmentLearningRate = 0.38
     private static let oppositeMemoryExtinctionRate = 0.09
 
+    public let individualID: UUID
     private let cells: [MaleCNSLearningKenyonDefinition]
     private let maximumDM1Input: Double
     private let maximumDM2Input: Double
@@ -172,10 +295,13 @@ public struct MaleCNSLearningCircuit: Sendable {
     public private(set) var memoryRevision: UInt64
 
     public init(
+        individualID: UUID? = nil,
         memory: MaleCNSLearningMemory? = nil,
         plasticityEnabled: Bool = true
     ) {
         let cells = GeneratedMaleCNSLearningCircuitData.kenyonCells
+        let resolvedIndividualID = individualID ?? memory?.individualID ?? UUID()
+        self.individualID = resolvedIndividualID
         self.cells = cells
         self.maximumDM1Input = Double(cells.map(\.dm1InputSynapses).max() ?? 1)
         self.maximumDM2Input = Double(cells.map(\.dm2InputSynapses).max() ?? 1)
@@ -184,10 +310,12 @@ public struct MaleCNSLearningCircuit: Sendable {
         let restored: [Int64: KCPlasticityState]
         if let memory,
            memory.schemaVersion == MaleCNSLearningMemory.currentSchemaVersion,
+           memory.individualID == resolvedIndividualID,
            memory.datasetID == Self.datasetID,
            memory.circuitID == Self.circuitID {
             restored = Dictionary(
-                uniqueKeysWithValues: memory.kenyonPlasticity.map { ($0.bodyID, $0) }
+                memory.kenyonPlasticity.map { ($0.bodyID, $0) },
+                uniquingKeysWith: { first, _ in first }
             )
             self.memoryRevision = memory.revision
         } else {
@@ -250,16 +378,35 @@ public struct MaleCNSLearningCircuit: Sendable {
             punishmentDANActivity: punishment,
             approachMBONActivity: currentReadout.approach,
             avoidanceMBONActivity: currentReadout.avoidance,
-            memorySummary: summary(
-                cue: strongest.cue,
-                valence: strongest.readout.valence,
-                confidence: strongest.readout.confidence
-            )
+            memorySummary: currentCue == nil
+                ? summary(
+                    cue: strongest.cue,
+                    valence: strongest.readout.valence,
+                    confidence: strongest.readout.confidence
+                )
+                : summary(
+                    cue: currentCue,
+                    valence: currentReadout.valence,
+                    confidence: currentReadout.confidence
+                )
+        )
+    }
+
+    public func read(
+        amberOdor: Double,
+        berryOdor: Double
+    ) -> MaleCNSLearningOutput {
+        var readOnlyCopy = self
+        return readOnlyCopy.step(
+            amberOdor: amberOdor,
+            berryOdor: berryOdor,
+            deltaTime: 0.001
         )
     }
 
     public func exportMemory(now: Date = Date()) -> MaleCNSLearningMemory {
         MaleCNSLearningMemory(
+            individualID: individualID,
             datasetID: Self.datasetID,
             circuitID: Self.circuitID,
             updatedAt: now,

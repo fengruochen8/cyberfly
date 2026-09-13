@@ -27,6 +27,17 @@ public struct EmbodiedNeuralInput: Sendable {
     public var novelty: Double
     public var contamination: Double
     public var visualTurnBias: Double
+    public var wholeCNSDescendingDrive: Double
+    public var wholeCNSMotorDrive: Double
+    public var wholeCNSArousal: Double
+    public var selfModelConfidence: Double
+    public var selfModelUncertainty: Double
+    public var selfPredictionError: Double
+    public var plannedBehavior: FlyBehavior?
+    public var planningConfidence: Double
+    public var epistemicDrive: Double
+    public var socialApproachDrive: Double
+    public var socialAvoidanceDrive: Double
     public var headingRadians: Double
 
     public init(
@@ -48,6 +59,17 @@ public struct EmbodiedNeuralInput: Sendable {
         novelty: Double = 0,
         contamination: Double = 0,
         visualTurnBias: Double = 0,
+        wholeCNSDescendingDrive: Double = 0,
+        wholeCNSMotorDrive: Double = 0,
+        wholeCNSArousal: Double = 0,
+        selfModelConfidence: Double = 1,
+        selfModelUncertainty: Double = 0,
+        selfPredictionError: Double = 0,
+        plannedBehavior: FlyBehavior? = nil,
+        planningConfidence: Double = 0,
+        epistemicDrive: Double = 0,
+        socialApproachDrive: Double = 0,
+        socialAvoidanceDrive: Double = 0,
         headingRadians: Double = 0
     ) {
         self.lifeState = lifeState
@@ -68,6 +90,17 @@ public struct EmbodiedNeuralInput: Sendable {
         self.novelty = Self.clamp(novelty)
         self.contamination = Self.clamp(contamination)
         self.visualTurnBias = Self.clampSigned(visualTurnBias)
+        self.wholeCNSDescendingDrive = Self.clamp(wholeCNSDescendingDrive)
+        self.wholeCNSMotorDrive = Self.clamp(wholeCNSMotorDrive)
+        self.wholeCNSArousal = Self.clamp(wholeCNSArousal)
+        self.selfModelConfidence = Self.clamp(selfModelConfidence)
+        self.selfModelUncertainty = Self.clamp(selfModelUncertainty)
+        self.selfPredictionError = Self.clamp(selfPredictionError)
+        self.plannedBehavior = plannedBehavior
+        self.planningConfidence = Self.clamp(planningConfidence)
+        self.epistemicDrive = Self.clamp(epistemicDrive)
+        self.socialApproachDrive = Self.clamp(socialApproachDrive)
+        self.socialAvoidanceDrive = Self.clamp(socialAvoidanceDrive)
         self.headingRadians = headingRadians
     }
 
@@ -81,9 +114,9 @@ public struct EmbodiedNeuralInput: Sendable {
 }
 
 public struct EmbodiedNeuralOutput: Equatable, Sendable {
-    public static let circuitID = "ENG-SENSORY→ENG-ACTION-WTA→ENG-DESCENDING"
+    public static let circuitID = "ENG-SENSORY↔ENG-SELF-PREDICT↔ENG-COUNTERFACTUAL↔ENG-SEMANTIC-SELF↔ENG-OTHER-MODEL→ENG-ACTION-WTA→ENG-DESCENDING"
     public static let provenance = "fitted/assumed"
-    public static let totalNeuronCount = 38
+    public static let totalNeuronCount = 49
 
     public let behavior: FlyBehavior
     public let selectedActionNeuron: String
@@ -128,6 +161,7 @@ public struct EmbodiedNeuralController: Sendable {
     private var feedingDrive = 0.0
     private var groomingDrive = 0.0
     private var restDrive = 0.0
+    private var selectedActionIndex: Int?
     private var isSilenced: Bool
 
     public init(isSilenced: Bool = false) {
@@ -144,6 +178,7 @@ public struct EmbodiedNeuralController: Sendable {
             feedingDrive = 0
             groomingDrive = 0
             restDrive = 0
+            selectedActionIndex = nil
         }
     }
 
@@ -159,6 +194,9 @@ public struct EmbodiedNeuralController: Sendable {
         if let actionActivities,
            actionActivities.count == FlyBehavior.allCases.count {
             actionMembranes = actionActivities.map(Self.inverseSigmoid)
+            selectedActionIndex = actionActivities.indices.max {
+                actionActivities[$0] < actionActivities[$1]
+            }
         }
         self.forwardSpeed = max(forwardSpeed ?? 0, 0)
         turnRate = Self.clamp(turnRateRadiansPerSecond ?? 0, minimum: -4, maximum: 4)
@@ -179,25 +217,42 @@ public struct EmbodiedNeuralController: Sendable {
         let behaviors = FlyBehavior.allCases
         let previousActivities = actionMembranes.map(Self.sigmoid)
         let strongestPrevious = previousActivities.max() ?? 0
+        let previousActivitySum = previousActivities.reduce(0, +)
         let signedNoise = Self.clampSigned(neuralNoise)
 
         for (index, behavior) in behaviors.enumerated() {
             let sensoryDrive = drive(for: behavior, input: input)
-            let recurrentDrive = previousActivities[index] * 0.34
-            let lateralInhibition = max(strongestPrevious - previousActivities[index], 0) * 0.42
+            let competitorCount = max(previousActivities.count - 1, 1)
+            let meanCompetitorActivity = (
+                previousActivitySum - previousActivities[index]
+            ) / Double(competitorCount)
+            let strongestCompetitorActivity = previousActivities.indices
+                .filter { $0 != index }
+                .map { previousActivities[$0] }
+                .max() ?? 0
+            let recurrentDrive = previousActivities[index] * 0.46
+            let lateralInhibition = meanCompetitorActivity * 0.70
+                + strongestCompetitorActivity * 0.38
+            let persistenceDrive = selectedActionIndex == index
+                && previousActivities[index] >= 0.32 ? 0.22 : 0
             let noisePhase = sin(Double(index + 1) * 2.399963 + signedNoise * 3.1)
-            let noiseDrive = noisePhase * 0.045
-            let target = sensoryDrive + recurrentDrive - lateralInhibition + noiseDrive
+            let noiseDrive = noisePhase * 0.035
+            let target = sensoryDrive + recurrentDrive + persistenceDrive
+                - lateralInhibition + noiseDrive
             let integrationRate = min(deltaTime * 9, 1)
             actionMembranes[index] += (target - actionMembranes[index]) * integrationRate
         }
 
         let activities = actionMembranes.map(Self.sigmoid)
         let winnerIndex = activities.indices.max { activities[$0] < activities[$1] } ?? 0
+        selectedActionIndex = winnerIndex
         let behavior = behaviors[winnerIndex]
         let winnerActivity = activities[winnerIndex]
-        let sorted = activities.sorted(by: >)
-        let confidence = Self.clamp((sorted.first ?? 0) - (sorted.dropFirst().first ?? 0))
+        let runnerUpActivity = activities.indices
+            .filter { $0 != winnerIndex }
+            .map { activities[$0] }
+            .max() ?? 0
+        let confidence = Self.clamp(winnerActivity - runnerUpActivity)
 
         let motorTargets = descendingMotorTargets(
             behavior: behavior,
@@ -269,44 +324,81 @@ public struct EmbodiedNeuralController: Sendable {
         let threat = max(input.threat, input.touch)
         let learnedApproach = max(input.learnedValence, 0) * input.memoryConfidence
         let learnedAvoidance = max(-input.learnedValence, 0) * input.memoryConfidence
+        let selfConfidence = input.selfModelConfidence
+        let selfUncertainty = input.selfModelUncertainty
+        let predictionMismatch = input.selfPredictionError
+        let cognitiveBias = cognitiveDrive(for: behavior, input: input)
 
         switch behavior {
         case .idle:
             return 0.30 + (1 - input.arousal) * 0.20 + (1 - input.curiosity) * 0.10
-                - hunger * 0.15 - threat * 1.2
+                + selfUncertainty * 0.16 - hunger * 0.15 - threat * 1.2 + cognitiveBias
         case .exploring:
             return 0.12 + input.curiosity * 0.90 + input.novelty * 0.48
-                - threat * 1.1 - input.fatigue * 0.22
+                + input.wholeCNSArousal * 0.18 + selfConfidence * 0.08
+                - selfUncertainty * 0.10 - predictionMismatch * 0.08
+                - threat * 1.1 - input.fatigue * 0.22 + cognitiveBias
         case .walking:
             return 0.16 + input.curiosity * 0.38 + input.arousal * 0.28
-                - threat * 0.65 - input.fatigue * 0.16
+                + input.wholeCNSDescendingDrive * 0.24 + input.wholeCNSMotorDrive * 0.18
+                + selfConfidence * 0.07 - selfUncertainty * 0.08
+                - threat * 0.65 - input.fatigue * 0.16 + cognitiveBias
         case .foraging:
             return 0.10 + hunger * 0.38
                 + hunger * input.foodOdor * (2.35 + learnedApproach * 1.25 - learnedAvoidance * 0.8)
-                - threat * 1.0
+                + selfConfidence * 0.05 - predictionMismatch * 0.08
+                - threat * 1.0 + cognitiveBias
         case .avoidingOdor:
-            return 0.04 + learnedAvoidance * input.foodOdor * 4.2 + input.stress * 0.08
+            return 0.04 + learnedAvoidance * input.foodOdor * 4.2
+                + input.stress * 0.08 + cognitiveBias
         case .feeding:
             return 0.02 + hunger * input.foodContact * 3.9 + input.foodContact * 0.45
-                - threat * 1.5
+                - threat * 1.5 + cognitiveBias
         case .flying:
             let metabolicInhibition = input.energy < 0.16 || input.fatigue > 0.82 ? 2.5 : 0
             return 0.07 + input.curiosity * input.novelty * 1.25 + input.arousal * 0.32
-                - input.fatigue * 0.24 - metabolicInhibition
+                + input.wholeCNSArousal * 0.20
+                - input.fatigue * 0.24 - selfUncertainty * 0.24
+                - predictionMismatch * 0.16 - metabolicInhibition + cognitiveBias
         case .groomingHead:
             return 0.08 + input.groomingNeed * 1.03 + input.contamination * 0.58
-                - threat * 1.15
+                - threat * 1.15 + cognitiveBias
         case .groomingWings:
             return 0.07 + input.groomingNeed * 0.98 + input.contamination * 0.52
-                + input.arousal * 0.18 - threat * 1.15
+                + input.arousal * 0.18 - threat * 1.15 + cognitiveBias
         case .resting:
             return 0.12 + input.fatigue * 1.48 + hunger * 0.24 + (1 - input.arousal) * 0.10
-                - threat * 1.3
+                + selfUncertainty * 0.14 - threat * 1.3 + cognitiveBias
         case .startled:
-            return 0.02 + threat * 4.4 + input.arousal * threat * 0.5
+            return 0.02 + threat * 4.4 + input.arousal * threat * 0.5 + cognitiveBias
         case .torpor:
-            return -4
+            return -4 + cognitiveBias
         }
+    }
+
+    private func cognitiveDrive(
+        for behavior: FlyBehavior,
+        input: EmbodiedNeuralInput
+    ) -> Double {
+        var drive = input.plannedBehavior == behavior
+            ? input.planningConfidence * 0.72 : 0
+        if behavior == .exploring {
+            drive += input.epistemicDrive * 0.30
+            drive += input.socialApproachDrive * 0.20
+        }
+        if behavior == .walking {
+            drive += input.socialApproachDrive * 0.13
+        }
+        if behavior == .startled {
+            drive += input.socialAvoidanceDrive * 0.52
+        }
+        if behavior == .flying {
+            drive += input.socialAvoidanceDrive * 0.16
+        }
+        if behavior == .idle {
+            drive += input.epistemicDrive * 0.05
+        }
+        return drive
     }
 
     private func descendingMotorTargets(
@@ -439,7 +531,18 @@ public struct EmbodiedNeuralController: Sendable {
             input.lifeState == .active ? 0 : 1,
             input.foodBearingRadians == nil ? 0 : 1,
             input.threatBearingRadians == nil ? 0 : 1,
-            input.energy
+            input.energy,
+            input.wholeCNSDescendingDrive,
+            input.wholeCNSMotorDrive,
+            input.wholeCNSArousal,
+            input.selfModelConfidence,
+            input.selfModelUncertainty,
+            input.selfPredictionError,
+            input.planningConfidence,
+            input.epistemicDrive,
+            input.socialApproachDrive,
+            input.socialAvoidanceDrive,
+            input.plannedBehavior == nil ? 0 : 1
         ]
     }
 

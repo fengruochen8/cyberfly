@@ -6,5 +6,7 @@ DerivedData*/
 xcuserdata/
 Data/raw/
 Data/cache/
+Sources/CyberFlySimulation/Resources/FullCNS/*.bin
+Sources/CyberFlySimulation/Resources/FullCNS/*.tmp
 *.app.disabled/
 .DS_Store

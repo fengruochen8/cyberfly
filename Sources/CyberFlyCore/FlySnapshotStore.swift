@@ -1,5 +1,25 @@
 import Foundation
 
+public enum PersistentLoadResult<Value: Sendable>: Sendable {
+    case missing
+    case loaded(Value)
+    case quarantined(fileURL: URL, reason: String)
+}
+
+public enum PersistentFileLoadError: Error, LocalizedError, Sendable {
+    case readFailed(path: String, reason: String)
+    case quarantineFailed(path: String, reason: String)
+
+    public var errorDescription: String? {
+        switch self {
+        case let .readFailed(path, reason):
+            "无法读取持久化文件 \(path)：\(reason)"
+        case let .quarantineFailed(path, reason):
+            "持久化文件损坏且无法隔离 \(path)：\(reason)"
+        }
+    }
+}
+
 public final class FlySnapshotStore: @unchecked Sendable {
     public static let widgetBundleIdentifier = "com.dadudu.CyberFly.Widget"
 
@@ -13,9 +33,45 @@ public final class FlySnapshotStore: @unchecked Sendable {
 
     public var snapshotURL: URL { fileURL }
 
-    public func load() -> FlyStateSnapshot? {
-        guard let data = try? Data(contentsOf: fileURL) else { return nil }
-        return try? decoder.decode(FlyStateSnapshot.self, from: data)
+    /// Decodes the shared snapshot without renaming or deleting it on failure.
+    /// Readers such as WidgetKit must never mutate the app's single-writer file.
+    public func loadReadOnly() throws -> FlyStateSnapshot? {
+        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+
+        let data: Data
+        do {
+            data = try Data(contentsOf: fileURL)
+        } catch {
+            throw PersistentFileLoadError.readFailed(
+                path: fileURL.path,
+                reason: error.localizedDescription
+            )
+        }
+        return try decoder.decode(FlyStateSnapshot.self, from: data)
+    }
+
+    public func load() throws -> PersistentLoadResult<FlyStateSnapshot> {
+        guard fileManager.fileExists(atPath: fileURL.path) else { return .missing }
+
+        let data: Data
+        do {
+            data = try Data(contentsOf: fileURL)
+        } catch {
+            throw PersistentFileLoadError.readFailed(
+                path: fileURL.path,
+                reason: error.localizedDescription
+            )
+        }
+
+        do {
+            return .loaded(try decoder.decode(FlyStateSnapshot.self, from: data))
+        } catch {
+            let reason = error.localizedDescription
+            return .quarantined(
+                fileURL: try quarantineUnreadableFile(reason: reason),
+                reason: reason
+            )
+        }
     }
 
     public func save(_ snapshot: FlyStateSnapshot) throws {
@@ -61,5 +117,19 @@ public final class FlySnapshotStore: @unchecked Sendable {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }
-}
 
+    private func quarantineUnreadableFile(reason: String) throws -> URL {
+        let quarantineURL = fileURL.appendingPathExtension(
+            "corrupt-\(Int(Date().timeIntervalSince1970))-\(UUID().uuidString)"
+        )
+        do {
+            try fileManager.moveItem(at: fileURL, to: quarantineURL)
+            return quarantineURL
+        } catch {
+            throw PersistentFileLoadError.quarantineFailed(
+                path: fileURL.path,
+                reason: "\(reason); \(error.localizedDescription)"
+            )
+        }
+    }
+}

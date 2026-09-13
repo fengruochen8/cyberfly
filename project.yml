@@ -11,8 +11,8 @@ settings:
     SWIFT_VERSION: 5.0
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: BH6R2JXYJ7
-    CURRENT_PROJECT_VERSION: 8
-    MARKETING_VERSION: 0.4.4
+    CURRENT_PROJECT_VERSION: 19
+    MARKETING_VERSION: 1.5.0
 
 targets:
   CyberFlyCore:
@@ -29,7 +29,11 @@ targets:
     type: framework
     platform: macOS
     sources:
-      - Sources/CyberFlySimulation
+      - path: Sources/CyberFlySimulation
+        excludes:
+          - Resources
+      - path: Sources/CyberFlySimulation/Resources/FullCNS
+        buildPhase: resources
     dependencies:
       - target: CyberFlyCore
     settings:
@@ -66,6 +70,8 @@ targets:
     platform: macOS
     sources:
       - Sources/CyberFlyApp
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
     dependencies:
       - target: CyberFlyCore
       - target: CyberFlySimulation
@@ -83,7 +89,7 @@ targets:
               - cyberfly
         LSApplicationCategoryType: public.app-category.utilities
         LSMinimumSystemVersion: "14.0"
-        LSUIElement: true
+        LSUIElement: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dadudu.CyberFly

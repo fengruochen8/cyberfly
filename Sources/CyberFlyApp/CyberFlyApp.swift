@@ -19,7 +19,7 @@ final class CyberFlyAppDelegate: NSObject, NSApplicationDelegate {
     private var statusMenuController: StatusMenuController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApplication.shared.setActivationPolicy(.accessory)
+        NSApplication.shared.setActivationPolicy(.regular)
 
         let runtime = RuntimeController()
         let flyPanelController = FlyPanelController(runtime: runtime)
@@ -31,6 +31,7 @@ final class CyberFlyAppDelegate: NSObject, NSApplicationDelegate {
 
         flyPanelController.show()
         runtime.start()
+        statusMenuController.showNeuralLab()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -38,11 +39,23 @@ final class CyberFlyAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        guard urls.contains(where: { $0.scheme == "cyberfly" }) else { return }
-        statusMenuController?.showDashboard()
+        guard let url = urls.first(where: { $0.scheme == "cyberfly" }) else { return }
+        if url.host == "lab" || url.path == "/lab" {
+            statusMenuController?.showNeuralLab()
+        } else {
+            statusMenuController?.showDashboard()
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    func applicationShouldHandleReopen(
+        _ sender: NSApplication,
+        hasVisibleWindows flag: Bool
+    ) -> Bool {
+        statusMenuController?.showNeuralLab()
+        return true
     }
 }

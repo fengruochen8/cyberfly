@@ -25,9 +25,25 @@ public final class FlySimulation: @unchecked Sendable {
     private var latestLearningOutput = MaleCNSLearningOutput.silent
     private var embodiedController: EmbodiedNeuralController
     private var latestEmbodiedOutput = EmbodiedNeuralOutput.silent
+    private var functionalSelfModel: FunctionalSelfModel
+    private var developmentalSelfModel: DevelopmentalSelfModel
+    private var latestCognitiveGuidance = CognitiveActionGuidance.neutral
+    private let fullCNSRuntime: FullCNSRuntime?
+    private var latestFullCNSMetrics: FullCNSRuntimeMetrics?
+    private let modelFidelity: ModelFidelity
     private var positionX: Double = 0.52
     private var positionY: Double = 0.12
     private var headingRadians: Double = 0
+    private var pendingExternalDisplacementX = 0.0
+    private var pendingExternalDisplacementY = 0.0
+    private var pendingExternalHeadingDelta = 0.0
+    private var pendingExternalIsRevealed = true
+    private var appliedExternalDisplacementX = 0.0
+    private var appliedExternalDisplacementY = 0.0
+    private var appliedExternalHeadingDelta = 0.0
+    private var appliedExternalIsRevealed = true
+    private var motorForwardScale = 1.0
+    private var motorTurnScale = 1.0
 
     public init(
         individualID: UUID = UUID(),
@@ -35,13 +51,55 @@ public final class FlySimulation: @unchecked Sendable {
         initialEnergy: Double = 0.78,
         learningMemory: MaleCNSLearningMemory? = nil,
         neuralControllerEnabled: Bool = true,
+        functionalSelfEnabled: Bool = true,
+        functionalSelfState: FunctionalSelfState? = nil,
+        counterfactualSelfEnabled: Bool = true,
+        semanticSelfEnabled: Bool = true,
+        socialSelfEnabled: Bool = true,
+        counterfactualSelfState: CounterfactualSelfState? = nil,
+        semanticSelfState: SemanticSelfState? = nil,
+        socialSelfState: SocialSelfState? = nil,
+        fullCNSRuntime: FullCNSRuntime? = nil,
         configuration: SimulationConfiguration = .standard
     ) {
         self.individualID = individualID
         self.random = DeterministicRandom(seed: seed)
         self.energy = Self.clamp(initialEnergy)
-        self.learningCircuit = MaleCNSLearningCircuit(memory: learningMemory)
+        self.learningCircuit = MaleCNSLearningCircuit(
+            individualID: individualID,
+            memory: learningMemory
+        )
         self.embodiedController = EmbodiedNeuralController(isSilenced: !neuralControllerEnabled)
+        self.functionalSelfModel = FunctionalSelfModel(
+            individualID: individualID,
+            enabled: functionalSelfEnabled,
+            restoring: functionalSelfState
+        )
+        self.developmentalSelfModel = DevelopmentalSelfModel(
+            individualID: individualID,
+            counterfactualEnabled: functionalSelfEnabled && counterfactualSelfEnabled,
+            semanticEnabled: functionalSelfEnabled && semanticSelfEnabled,
+            socialEnabled: functionalSelfEnabled && socialSelfEnabled,
+            restoringCounterfactual: counterfactualSelfState,
+            restoringSemantic: semanticSelfState,
+            restoringSocial: socialSelfState
+        )
+        self.fullCNSRuntime = fullCNSRuntime
+        self.latestFullCNSMetrics = fullCNSRuntime.map {
+            FullCNSRuntimeMetrics.idle(graph: $0.graph)
+        }
+        if !functionalSelfEnabled {
+            self.modelFidelity = fullCNSRuntime == nil
+                ? .embodiedNeural : .wholeCNSDigitalFly
+        } else if socialSelfEnabled {
+            self.modelFidelity = .socialSelfCognition
+        } else if semanticSelfEnabled {
+            self.modelFidelity = .semanticSelfCognition
+        } else if counterfactualSelfEnabled {
+            self.modelFidelity = .counterfactualSelfCognition
+        } else {
+            self.modelFidelity = .functionalSelfCognition
+        }
         self.configuration = configuration
     }
 
@@ -49,6 +107,7 @@ public final class FlySimulation: @unchecked Sendable {
         restoring snapshot: FlyStateSnapshot,
         seed: UInt64? = nil,
         learningMemory: MaleCNSLearningMemory? = nil,
+        fullCNSRuntime: FullCNSRuntime? = nil,
         configuration: SimulationConfiguration = .standard
     ) {
         self.init(
@@ -57,6 +116,15 @@ public final class FlySimulation: @unchecked Sendable {
             initialEnergy: snapshot.energy,
             learningMemory: learningMemory,
             neuralControllerEnabled: true,
+            functionalSelfEnabled: true,
+            functionalSelfState: snapshot.functionalSelf,
+            counterfactualSelfEnabled: true,
+            semanticSelfEnabled: true,
+            socialSelfEnabled: true,
+            counterfactualSelfState: snapshot.counterfactualSelf,
+            semanticSelfState: snapshot.semanticSelf,
+            socialSelfState: snapshot.socialSelf,
+            fullCNSRuntime: fullCNSRuntime,
             configuration: configuration
         )
         tick = snapshot.tick
@@ -111,12 +179,48 @@ public final class FlySimulation: @unchecked Sendable {
         tick &+= 1
 
         updateConnectome(deltaTime: deltaTime, stimulus: stimulus)
-        updateLearningCircuit(deltaTime: deltaTime, stimulus: stimulus)
+        readLearningCircuit(stimulus: stimulus)
+        updateFullCNS(deltaTime: deltaTime, stimulus: stimulus)
+        latestCognitiveGuidance = developmentalSelfModel.prepare(
+            body: currentBodyObservation(),
+            functionalSelf: functionalSelfModel.state,
+            stimulus: stimulus,
+            curiosity: curiosity,
+            arousal: arousal,
+            tick: tick
+        )
+        updateEmbodiedController(deltaTime: deltaTime, stimulus: stimulus)
+        let bodyBeforeAction = currentBodyObservation()
+        let expectedDeltas = predictedBodyDeltas(
+            deltaTime: deltaTime,
+            stimulus: stimulus
+        )
+        let selfAction = currentSelfActionCommand()
+        let selfPrediction = functionalSelfModel.predict(
+            action: selfAction,
+            body: bodyBeforeAction,
+            deltaTime: deltaTime,
+            expectedEnergyDelta: expectedDeltas.energy,
+            expectedFatigueDelta: expectedDeltas.fatigue,
+            expectedGroomingDelta: expectedDeltas.grooming
+        )
         updateBodyState(deltaTime: deltaTime, stimulus: stimulus)
         updateLifeState(stimulus: stimulus)
         updateAffect(deltaTime: deltaTime, stimulus: stimulus)
-        updateEmbodiedController(deltaTime: deltaTime, stimulus: stimulus)
+        updateLearningCircuit(deltaTime: deltaTime, stimulus: stimulus)
         updateMotion(deltaTime: deltaTime)
+        updateFunctionalSelf(
+            prediction: selfPrediction,
+            before: bodyBeforeAction,
+            action: selfAction,
+            stimulus: stimulus,
+            now: now
+        )
+        updateDevelopmentalSelf(
+            before: bodyBeforeAction,
+            action: selfAction,
+            stimulus: stimulus
+        )
         updateNeuralActivity(deltaTime: deltaTime)
 
         return makeSnapshot(now: now, stimulus: stimulus)
@@ -135,12 +239,70 @@ public final class FlySimulation: @unchecked Sendable {
         groomingNeed = Self.clamp(groomingNeed + max(amount, 0))
     }
 
+    public func applyExternalDisplacement(
+        deltaX: Double,
+        deltaY: Double,
+        headingDelta: Double = 0,
+        revealToSelfModel: Bool = true
+    ) {
+        pendingExternalDisplacementX += min(max(deltaX, -0.5), 0.5)
+        pendingExternalDisplacementY += min(max(deltaY, -0.5), 0.5)
+        pendingExternalHeadingDelta += min(max(headingDelta, -.pi), .pi)
+        pendingExternalIsRevealed = revealToSelfModel
+    }
+
+    public func setMotorControlTransform(
+        forwardScale: Double = 1,
+        turnScale: Double = 1
+    ) {
+        motorForwardScale = min(max(forwardScale, 0), 2)
+        motorTurnScale = min(max(turnScale, -2), 2)
+    }
+
+    public var functionalSelfState: FunctionalSelfState {
+        functionalSelfModel.state
+    }
+
+    public var counterfactualSelfState: CounterfactualSelfState {
+        developmentalSelfModel.counterfactual
+    }
+
+    public var semanticSelfState: SemanticSelfState {
+        developmentalSelfModel.semantic
+    }
+
+    public var socialSelfState: SocialSelfState {
+        developmentalSelfModel.social
+    }
+
     public var learningMemoryRevision: UInt64 {
         learningCircuit.memoryRevision
     }
 
     public func exportLearningMemory(now: Date = Date()) -> MaleCNSLearningMemory {
         learningCircuit.exportMemory(now: now)
+    }
+
+    public func exportFullCNSPersistentState(
+        now: Date = Date()
+    ) -> FullCNSPersistentState? {
+        fullCNSRuntime?.exportPersistentState(individualID: individualID, now: now)
+    }
+
+    public var fullCNSManifest: FullCNSManifest? {
+        fullCNSRuntime?.graph.manifest
+    }
+
+    public func inspectFullCNSNeurons(
+        matching query: FullCNSNeuronQuery
+    ) -> [FullCNSNeuronObservation] {
+        fullCNSRuntime?.inspectNeurons(matching: query) ?? []
+    }
+
+    public func inspectFullCNSNeuron(
+        bodyID: UInt64
+    ) -> FullCNSNeuronObservation? {
+        fullCNSRuntime?.inspectNeuron(bodyID: bodyID)
     }
 
     private func updateBodyState(deltaTime: Double, stimulus: FlyStimulus) {
@@ -195,6 +357,20 @@ public final class FlySimulation: @unchecked Sendable {
     }
 
     private func updateEmbodiedController(deltaTime: Double, stimulus: FlyStimulus) {
+        let fullCNSDescendingDrive = Self.clamp(
+            (latestFullCNSMetrics?.descendingActivity ?? 0) * 24
+        )
+        let fullCNSMotorDrive = Self.clamp(
+            (latestFullCNSMetrics?.motorActivity ?? 0) * 36
+        )
+        let fullCNSArousal = Self.clamp(
+            (latestFullCNSMetrics?.centralComplexActivity ?? 0) * 20
+                + (latestFullCNSMetrics?.octopamineLevel ?? 0) * 0.65
+        )
+        let wholeCNSTurnBias = latestFullCNSMetrics?.turnBias ?? 0
+        let combinedVisualTurnBias = fullCNSRuntime == nil
+            ? latestCircuitOutput.turnBias
+            : Self.clampSigned(latestCircuitOutput.turnBias * 0.55 + wholeCNSTurnBias * 0.45)
         latestEmbodiedOutput = embodiedController.step(
             input: EmbodiedNeuralInput(
                 lifeState: lifeState,
@@ -214,7 +390,18 @@ public final class FlySimulation: @unchecked Sendable {
                 touch: stimulus.touch,
                 novelty: stimulus.novelty,
                 contamination: stimulus.contamination,
-                visualTurnBias: latestCircuitOutput.turnBias,
+                visualTurnBias: combinedVisualTurnBias,
+                wholeCNSDescendingDrive: fullCNSDescendingDrive,
+                wholeCNSMotorDrive: fullCNSMotorDrive,
+                wholeCNSArousal: fullCNSArousal,
+                selfModelConfidence: functionalSelfModel.state.confidence,
+                selfModelUncertainty: functionalSelfModel.state.uncertainty,
+                selfPredictionError: functionalSelfModel.state.predictionError,
+                plannedBehavior: latestCognitiveGuidance.preferredBehavior,
+                planningConfidence: latestCognitiveGuidance.planningConfidence,
+                epistemicDrive: latestCognitiveGuidance.epistemicDrive,
+                socialApproachDrive: latestCognitiveGuidance.socialApproachDrive,
+                socialAvoidanceDrive: latestCognitiveGuidance.socialAvoidanceDrive,
                 headingRadians: headingRadians
             ),
             deltaTime: deltaTime,
@@ -226,10 +413,27 @@ public final class FlySimulation: @unchecked Sendable {
 
     private func updateMotion(deltaTime: Double) {
         headingRadians = Self.normalizedAngle(
-            headingRadians + latestEmbodiedOutput.turnRateRadiansPerSecond * deltaTime
+            headingRadians
+                + latestEmbodiedOutput.turnRateRadiansPerSecond * motorTurnScale * deltaTime
         )
-        positionX += cos(headingRadians) * latestEmbodiedOutput.forwardSpeed * deltaTime
-        positionY += sin(headingRadians) * latestEmbodiedOutput.forwardSpeed * deltaTime
+        positionX += cos(headingRadians)
+            * latestEmbodiedOutput.forwardSpeed * motorForwardScale * deltaTime
+        positionY += sin(headingRadians)
+            * latestEmbodiedOutput.forwardSpeed * motorForwardScale * deltaTime
+
+        appliedExternalDisplacementX = pendingExternalDisplacementX
+        appliedExternalDisplacementY = pendingExternalDisplacementY
+        appliedExternalHeadingDelta = pendingExternalHeadingDelta
+        appliedExternalIsRevealed = pendingExternalIsRevealed
+        positionX += appliedExternalDisplacementX
+        positionY += appliedExternalDisplacementY
+        headingRadians = Self.normalizedAngle(
+            headingRadians + appliedExternalHeadingDelta
+        )
+        pendingExternalDisplacementX = 0
+        pendingExternalDisplacementY = 0
+        pendingExternalHeadingDelta = 0
+        pendingExternalIsRevealed = true
 
         if positionX < 0.04 || positionX > 0.96 {
             headingRadians = Self.normalizedAngle(.pi - headingRadians)
@@ -241,7 +445,143 @@ public final class FlySimulation: @unchecked Sendable {
         }
     }
 
+    private func currentBodyObservation() -> SelfBodyObservation {
+        SelfBodyObservation(
+            positionX: positionX,
+            positionY: positionY,
+            headingRadians: headingRadians,
+            energy: energy,
+            fatigue: fatigue,
+            groomingNeed: groomingNeed,
+            lifeState: lifeState
+        )
+    }
+
+    private func currentSelfActionCommand() -> SelfActionCommand {
+        SelfActionCommand(
+            behavior: latestEmbodiedOutput.behavior,
+            actionNeuron: latestEmbodiedOutput.selectedActionNeuron,
+            actionConfidence: latestEmbodiedOutput.actionConfidence,
+            forwardSpeed: latestEmbodiedOutput.forwardSpeed,
+            turnRateRadiansPerSecond: latestEmbodiedOutput.turnRateRadiansPerSecond,
+            wingDrive: latestEmbodiedOutput.wingDrive,
+            feedingDrive: latestEmbodiedOutput.feedingDrive,
+            groomingDrive: latestEmbodiedOutput.groomingDrive,
+            restDrive: latestEmbodiedOutput.restDrive
+        )
+    }
+
+    private func predictedBodyDeltas(
+        deltaTime: Double,
+        stimulus: FlyStimulus
+    ) -> (energy: Double, fatigue: Double, grooming: Double) {
+        let walkingFraction = Self.clamp(latestEmbodiedOutput.forwardSpeed / 0.13)
+        let flightFraction = latestEmbodiedOutput.wingDrive
+        let groomingFraction = latestEmbodiedOutput.groomingDrive
+        let activityMultiplier = 1
+            + walkingFraction * (configuration.walkingEnergyMultiplier - 1)
+            + flightFraction * (configuration.flightEnergyMultiplier - 1)
+            + groomingFraction * 0.6
+        let energyDelta = (
+            -configuration.basalEnergyCostPerSecond * activityMultiplier
+                + configuration.feedingEnergyPerSecond
+                    * latestEmbodiedOutput.feedingDrive * stimulus.foodContact
+        ) * deltaTime
+        let fatigueDelta = (
+            configuration.fatigueGainPerSecond
+                * (walkingFraction + flightFraction * 4 + groomingFraction * 0.6)
+                - configuration.restRecoveryPerSecond * latestEmbodiedOutput.restDrive
+        ) * deltaTime
+        let groomingDelta = (
+            configuration.naturalContaminationPerSecond
+                + stimulus.contamination * 0.07
+                - configuration.groomingRecoveryPerSecond
+                    * latestEmbodiedOutput.groomingDrive
+        ) * deltaTime
+        return (energyDelta, fatigueDelta, groomingDelta)
+    }
+
+    private func updateFunctionalSelf(
+        prediction: SelfActionPrediction,
+        before: SelfBodyObservation,
+        action: SelfActionCommand,
+        stimulus: FlyStimulus,
+        now: Date
+    ) {
+        _ = functionalSelfModel.observe(
+            prediction: prediction,
+            before: before,
+            after: currentBodyObservation(),
+            action: action,
+            external: SelfExternalEvidence(
+                touch: stimulus.touch,
+                threat: stimulus.threat,
+                contamination: stimulus.contamination,
+                sensorReliability: stimulus.sensorReliability,
+                visualMotion: max(stimulus.novelty, stimulus.threat),
+                memoryConfidence: latestLearningOutput.currentMemoryConfidence,
+                displacementX: appliedExternalIsRevealed ? appliedExternalDisplacementX : 0,
+                displacementY: appliedExternalIsRevealed ? appliedExternalDisplacementY : 0,
+                headingDelta: appliedExternalIsRevealed ? appliedExternalHeadingDelta : 0
+            ),
+            tick: tick,
+            now: now
+        )
+    }
+
+    private func updateDevelopmentalSelf(
+        before: SelfBodyObservation,
+        action: SelfActionCommand,
+        stimulus: FlyStimulus
+    ) {
+        let externalMagnitude = hypot(
+            appliedExternalDisplacementX,
+            appliedExternalDisplacementY
+        ) + abs(appliedExternalHeadingDelta) * 0.08
+        developmentalSelfModel.observe(
+            functionalSelf: functionalSelfModel.state,
+            selectedAction: action,
+            bodyBefore: before,
+            bodyAfter: currentBodyObservation(),
+            stimulus: stimulus,
+            externalCauseForEvaluation: externalMagnitude > 0.008,
+            wasBlindExternalEvent: externalMagnitude > 0.008 && !appliedExternalIsRevealed,
+            tick: tick
+        )
+    }
+
     private func updateConnectome(deltaTime: Double, stimulus: FlyStimulus) {
+        let motion = visualMotionInput(stimulus: stimulus)
+        latestCircuitOutput = visualCircuit.step(
+            leftVisualMotion: motion.left,
+            rightVisualMotion: motion.right,
+            deltaTime: deltaTime
+        )
+    }
+
+    private func updateFullCNS(deltaTime: Double, stimulus: FlyStimulus) {
+        guard let fullCNSRuntime else { return }
+        let motion = visualMotionInput(stimulus: stimulus)
+        latestFullCNSMetrics = fullCNSRuntime.step(
+            deltaTime: deltaTime,
+            input: FullCNSSensoryInput(
+                leftVisualMotion: motion.left,
+                rightVisualMotion: motion.right,
+                odor: max(stimulus.amberOdor, stimulus.berryOdor),
+                taste: stimulus.foodContact,
+                touch: max(stimulus.touch, stimulus.threat),
+                proprioception: Self.clamp(
+                    latestEmbodiedOutput.forwardSpeed / 0.13
+                        + latestEmbodiedOutput.wingDrive * 0.35
+                ),
+                hunger: 1 - energy,
+                reward: latestEmbodiedOutput.feedingDrive * stimulus.foodContact,
+                punishment: max(stimulus.threat, stimulus.touch)
+            )
+        )
+    }
+
+    private func visualMotionInput(stimulus: FlyStimulus) -> (left: Double, right: Double) {
         let visualDrive = Self.clamp(max(stimulus.novelty, stimulus.threat * 0.9))
         let bearing = stimulus.visualMotionBearingRadians ?? stimulus.threatBearingRadians
         let lateral: Double
@@ -250,24 +590,29 @@ public final class FlySimulation: @unchecked Sendable {
         } else {
             lateral = 0
         }
-        let leftMotion = visualDrive * Self.clamp(0.62 + lateral * 0.38)
-        let rightMotion = visualDrive * Self.clamp(0.62 - lateral * 0.38)
-        latestCircuitOutput = visualCircuit.step(
-            leftVisualMotion: leftMotion,
-            rightVisualMotion: rightMotion,
-            deltaTime: deltaTime
+        return (
+            left: visualDrive * Self.clamp(0.62 + lateral * 0.38),
+            right: visualDrive * Self.clamp(0.62 - lateral * 0.38)
         )
     }
 
     private func updateLearningCircuit(deltaTime: Double, stimulus: FlyStimulus) {
         let reward = latestEmbodiedOutput.feedingDrive * stimulus.foodContact
         let punishment = max(stimulus.threat, stimulus.touch)
+        guard reward > 0 || punishment > 0 else { return }
         latestLearningOutput = learningCircuit.step(
             amberOdor: stimulus.amberOdor,
             berryOdor: stimulus.berryOdor,
             rewardSignal: reward,
             punishmentSignal: punishment,
             deltaTime: deltaTime
+        )
+    }
+
+    private func readLearningCircuit(stimulus: FlyStimulus) {
+        latestLearningOutput = learningCircuit.read(
+            amberOdor: stimulus.amberOdor,
+            berryOdor: stimulus.berryOdor
         )
     }
 
@@ -308,6 +653,7 @@ public final class FlySimulation: @unchecked Sendable {
                     latestLearningOutput.rewardDANActivity,
                     latestLearningOutput.punishmentDANActivity
                 ) * 0.18
+                + (latestFullCNSMetrics?.meanActivity ?? 0) * 8
         )
         neuralActivity = Self.approach(neuralActivity, activityTarget, rate: 2.2 * deltaTime)
     }
@@ -315,6 +661,12 @@ public final class FlySimulation: @unchecked Sendable {
     private func makeSnapshot(now: Date, stimulus: FlyStimulus) -> FlyStateSnapshot {
         let hunger = 1 - energy
         let emotion = classifyEmotion(hunger: hunger)
+        let controllerCircuit = fullCNSRuntime == nil
+            ? EmbodiedNeuralController.circuitID
+            : "MaleCNS-FULL-CNS→\(EmbodiedNeuralController.circuitID)"
+        let controllerProvenance = fullCNSRuntime == nil
+            ? EmbodiedNeuralController.provenance
+            : "observed/predicted + fitted/assumed readout"
         return FlyStateSnapshot(
             individualID: individualID,
             sampledAt: now,
@@ -346,8 +698,8 @@ public final class FlySimulation: @unchecked Sendable {
             rewardDANActivity: latestLearningOutput.rewardDANActivity,
             punishmentDANActivity: latestLearningOutput.punishmentDANActivity,
             memorySummary: latestLearningOutput.memorySummary,
-            controllerCircuit: EmbodiedNeuralController.circuitID,
-            controllerProvenance: EmbodiedNeuralController.provenance,
+            controllerCircuit: controllerCircuit,
+            controllerProvenance: controllerProvenance,
             controllerNeuronCount: EmbodiedNeuralController.totalNeuronCount,
             activeControllerNeuronCount: latestEmbodiedOutput.activeNeuronCount,
             selectedActionNeuron: latestEmbodiedOutput.selectedActionNeuron,
@@ -358,11 +710,32 @@ public final class FlySimulation: @unchecked Sendable {
             groomingMotorDrive: latestEmbodiedOutput.groomingDrive,
             restMotorDrive: latestEmbodiedOutput.restDrive,
             actionNeuronActivities: latestEmbodiedOutput.actionActivities,
+            wholeCNSDataset: latestFullCNSMetrics?.dataset,
+            wholeCNSGraphSHA256: latestFullCNSMetrics?.graphSha256,
+            wholeCNSNodeCount: latestFullCNSMetrics?.nodeCount,
+            wholeCNSEdgeCount: latestFullCNSMetrics?.edgeCount,
+            wholeCNSActiveNeuronCount: latestFullCNSMetrics?.activeNeuronCount,
+            wholeCNSSpikeCount: latestFullCNSMetrics?.spikeCount,
+            wholeCNSEdgeEventCount: latestFullCNSMetrics?.edgeEventCount,
+            wholeCNSRealTimeFactor: latestFullCNSMetrics?.realTimeFactor,
+            wholeCNSSensoryActivity: latestFullCNSMetrics?.sensoryActivity,
+            wholeCNSCentralComplexActivity: latestFullCNSMetrics?.centralComplexActivity,
+            wholeCNSDescendingActivity: latestFullCNSMetrics?.descendingActivity,
+            wholeCNSMotorActivity: latestFullCNSMetrics?.motorActivity,
+            wholeCNSDopamineLevel: latestFullCNSMetrics?.dopamineLevel,
+            wholeCNSSerotoninLevel: latestFullCNSMetrics?.serotoninLevel,
+            wholeCNSOctopamineLevel: latestFullCNSMetrics?.octopamineLevel,
+            wholeCNSPlasticSynapseSourceCount: latestFullCNSMetrics?.plasticSynapseSourceCount,
+            wholeCNSEventBudgetSaturated: latestFullCNSMetrics?.eventBudgetSaturated,
+            functionalSelf: functionalSelfModel.state,
+            counterfactualSelf: developmentalSelfModel.counterfactual,
+            semanticSelf: developmentalSelfModel.semantic,
+            socialSelf: developmentalSelfModel.social,
             positionX: positionX,
             positionY: positionY,
             headingRadians: headingRadians,
             reason: reason(for: behavior, stimulus: stimulus),
-            modelFidelity: .embodiedNeural
+            modelFidelity: modelFidelity
         )
     }
 
@@ -379,7 +752,9 @@ public final class FlySimulation: @unchecked Sendable {
     }
 
     private func reason(for behavior: FlyBehavior, stimulus: FlyStimulus) -> String {
-        let prefix = "\(latestEmbodiedOutput.selectedActionNeuron) 在神经竞争中胜出"
+        let prefix = fullCNSRuntime == nil
+            ? "\(latestEmbodiedOutput.selectedActionNeuron) 在神经竞争中胜出"
+            : "MaleCNS 全 CNS 读出调制后，\(latestEmbodiedOutput.selectedActionNeuron) 胜出"
         let explanation: String
         switch behavior {
         case .idle: explanation = "环境平静，下降运动输出接近静息"
@@ -413,6 +788,10 @@ public final class FlySimulation: @unchecked Sendable {
 
     private static func clamp(_ value: Double) -> Double {
         min(max(value, 0), 1)
+    }
+
+    private static func clampSigned(_ value: Double) -> Double {
+        min(max(value, -1), 1)
     }
 
     private static func approach(_ value: Double, _ target: Double, rate: Double) -> Double {
